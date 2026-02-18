@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeeva Raksha - Unified HIS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Kannada:wght@400;700;900&family=Noto+Sans+Devanagari:wght@400;700;900&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1E88E5',   // Hospital Blue
+            success: '#2E7D32',   // Healing Green
+            accent: '#26A69A',    // AI Teal
+            danger: '#D32F2F',    // Medical Red
+            warning: '#FFB300',   // Amber
+            hospital: {
+              bg: '#F9FBFD',
+              blue: '#1E88E5',
+              green: '#2E7D32',
+              teal: '#26A69A',
+              slate: '#607D8B'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            kannada: ['"Noto Sans Kannada"', 'sans-serif'],
+            hindi: ['"Noto Sans Devanagari"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F9FBFD;
+      margin: 0;
+      padding: 0;
+    }
+
+    .font-kannada {
+      font-family: 'Noto Sans Kannada', sans-serif;
+    }
+
+    .font-hindi {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 10px;
+    }
+
+    .animate-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+
+  <link rel="stylesheet" href="/index.css">
+</head>
+
+<body class="bg-hospital-bg text-slate-900">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

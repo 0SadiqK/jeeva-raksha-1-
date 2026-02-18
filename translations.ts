@@ -1,0 +1,47 @@
+
+export type Language = 'EN' | 'KN';
+
+export const translations = {
+  brand: { EN: "Jeeva Raksha", KN: "ಜೀವರಕ್ಷ" },
+  home: { EN: "Home", KN: "ಮುಖಪುಟ" },
+  staffLogin: { EN: "Staff Login", KN: "ಸಿಬ್ಬಂದಿ ಲಾಗಿನ್" },
+  accessDashboard: { EN: "Access Dashboard", KN: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಪ್ರವೇಶಿಸಿ" },
+  allSystemsOperational: { EN: "All Systems Operational", KN: "ಎಲ್ಲಾ ವ್ಯವಸ್ಥೆಗಳು ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತಿವೆ" },
+  dataSecurity: { EN: "Data Security", KN: "ಡೇಟಾ ಸುರಕ್ಷತೆ" },
+  encrypted: { EN: "Encrypted (AES-256)", KN: "ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಲಾಗಿದೆ (AES-256)" },
+  lastSync: { EN: "Last Sync", KN: "ಕೊನೆಯ ಸಿಂಕ್" },
+  realTimePulse: { EN: "Real-time Pulse active", KN: "ಲೈವ್ ಪಲ್ಸ್ ಸಕ್ರಿಯವಾಗಿದೆ" },
+  rights: { EN: "All rights reserved.", KN: "ಎಲ್ಲಾ ಹಕ್ಕುಗಳು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ." },
+  categories: {
+    CLINICAL_OPS: { EN: "Clinical Operations", KN: "ವೈದ್ಯಕೀಯ ಕಾರ್ಯಾಚರಣೆಗಳು" },
+    PATIENT_CARE: { EN: "Patient Records & Care", KN: "ರೋಗಿಗಳ ದಾಖಲೆ ಮತ್ತು ಆರೈಕೆ" },
+    DIAGNOSTICS: { EN: "Diagnostics", KN: "ರೋಗನಿರ್ಣಯ" },
+    PHARMACY_SUPPLIES: { EN: "Pharmacy & Supplies", KN: "ಫಾರ್ಮಸಿ ಮತ್ತು ಸರಬರಾಜು" },
+    FINANCIAL_OPS: { EN: "Financial Operations", KN: "ಹಣಕಾಸು ಕಾರ್ಯಾಚರಣೆಗಳು" },
+    WORKFORCE_ADMIN: { EN: "Workforce & Administration", KN: "ಸಿಬ್ಬಂದಿ ಮತ್ತು ಆಡಳಿತ" },
+    INSIGHTS_GOV: { EN: "Insights & Governance", KN: "ಒಳನೋಟಗಳು ಮತ್ತು ಆಡಳಿತ" },
+    INTEGRATIONS: { EN: "Integrations", KN: "ಏಕೀಕರಣಗಳು" },
+  },
+  modules: {
+    DASHBOARD: { EN: "Dashboard", KN: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್" },
+    OPD: { EN: "OPD Management", KN: "OPD ನಿರ್ವಹಣೆ" },
+    IPD: { EN: "IPD & Wards", KN: "IPD ಮತ್ತು ವಾರ್ಡ್‌ಗಳು" },
+    EMERGENCY: { EN: "Emergency Care", KN: "ತುರ್ತು ಆರೈಕೆ" },
+    OT: { EN: "Operation Theatre", KN: "ಶಸ್ತ್ರಚಿಕಿತ್ಸಾ ಕೊಠಡಿ" },
+    EMR: { EN: "EMR Records", KN: "EMR ದಾಖಲೆಗಳು" },
+    ROUNDS: { EN: "Doctor Rounds", KN: "ವೈದ್ಯರ ರೌಂಡ್ಸ್" },
+    PORTAL: { EN: "Patient Portal", KN: "ರೋಗಿಗಳ ಪೋರ್ಟಲ್" },
+    LABORATORY: { EN: "Laboratory", KN: "ಪ್ರಯೋಗಾಲಯ" },
+    RADIOLOGY: { EN: "Radiology", KN: "ರೇಡಿಯಾಲಜಿ" },
+    PHARMACY: { EN: "Pharmacy Mgmt", KN: "ಫಾರ್ಮಸಿ ನಿರ್ವಹಣೆ" },
+    INVENTORY: { EN: "Inventory Mgmt", KN: "ದಾಸ್ತಾನು ನಿರ್ವಹಣೆ" },
+    BILLING: { EN: "Billing & Invoicing", KN: "ಬಿಲ್ಲಿಂಗ್ ಮತ್ತು ಇನ್ವಾಯ್ಸಿಂಗ್" },
+    INSURANCE: { EN: "Insurance & Claims", KN: "ವಿಮೆ ಮತ್ತು ಹಕ್ಕುಗಳು" },
+    HR: { EN: "HR & Staff Mgmt", KN: "HR ಮತ್ತು ಸಿಬ್ಬಂದಿ ನಿರ್ವಹಣೆ" },
+    BEDS: { EN: "Bed Management", KN: "ಹಾಸಿಗೆ ನಿರ್ವಹಣೆ" },
+    ANALYTICS: { EN: "Analytics & Reports", KN: "ವಿಶ್ಲೇಷಣೆ ಮತ್ತು ವರದಿಗಳು" },
+    QUALITY: { EN: "Quality & Audits", KN: "ಗುಣಮಟ್ಟ ಮತ್ತು ಲೆಕ್ಕಪರಿಶೋಧನೆ" },
+    INTEGRATIONS_DEVICES: { EN: "Labs & Devices", KN: "ಲ್ಯಾಬ್‌ಗಳು ಮತ್ತು ಸಾಧನಗಳು" },
+    INTEGRATIONS_GOVT: { EN: "Govt & Insurance", KN: "ಸರ್ಕಾರ ಮತ್ತು ವಿಮೆ" },
+  }
+};
