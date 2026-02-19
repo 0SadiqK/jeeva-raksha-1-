@@ -61,9 +61,9 @@ router.post('/login', async (req, res) => {
 
         // Find user by email
         const result = await pool.query(
-            `SELECT u.*, r.role_name as role, u.department as department_name
+            `SELECT u.*, u.role, d.name as department_name
              FROM users u
-             LEFT JOIN roles r ON u.role_id = r.id
+             LEFT JOIN departments d ON u.department_id = d.id
              WHERE u.email = $1`,
             [email.toLowerCase().trim()]
         );
@@ -167,10 +167,10 @@ router.post('/demo', async (req, res) => {
 
         // Find a user with the requested role for demo purposes
         const result = await pool.query(
-            `SELECT u.*, r.role_name as role, u.department as department_name
+            `SELECT u.*, u.role, d.name as department_name
              FROM users u
-             LEFT JOIN roles r ON u.role_id = r.id
-             WHERE (r.role_name ILIKE $1 OR u.designation ILIKE $1) AND u.status = 'active'
+             LEFT JOIN departments d ON u.department_id = d.id
+             WHERE u.role ILIKE $1 AND u.status = 'active'
              ORDER BY u.created_at ASC LIMIT 1`,
             [targetRole]
         );
