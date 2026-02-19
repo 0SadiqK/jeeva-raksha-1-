@@ -111,7 +111,14 @@ export const api = {
 
     // Wards & Beds
     getWards: () => request<any[]>('/wards'),
+    createWard: (data: any) => request<any>('/wards', { method: 'POST', body: JSON.stringify(data) }),
+    updateWard: (id: string, data: any) => request<any>(`/wards/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    deleteWard: (id: string) => request<any>(`/wards/${id}`, { method: 'DELETE' }),
+
     getBeds: (ward_id?: string) => request<any[]>(`/beds${ward_id ? `?ward_id=${ward_id}` : ''}`),
+    createBed: (data: any) => request<any>('/beds', { method: 'POST', body: JSON.stringify(data) }),
+    updateBed: (id: string, data: any) => request<any>(`/beds/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    deleteBed: (id: string) => request<any>(`/beds/${id}`, { method: 'DELETE' }),
     updateBedStatus: (id: string, status: string) =>
         request<any>(`/beds/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }),
 
