@@ -163,17 +163,25 @@ router.post('/login', async (req, res) => {
 router.post('/demo', async (req, res) => {
     try {
         const { role } = req.body;
-        const targetRole = role || 'demo';
+        const targetRole = (role && role !== 'demo') ? role : null;
 
-        // Find a user with the requested role for demo purposes
-        const result = await pool.query(
-            `SELECT u.*, u.role, d.name as department_name
-             FROM users u
-             LEFT JOIN departments d ON u.department_id = d.id
-             WHERE u.role ILIKE $1 AND u.status = 'active'
-             ORDER BY u.created_at ASC LIMIT 1`,
-            [targetRole]
-        );
+        // Find a user with the requested role, or first active user for generic demo
+        const result = targetRole
+            ? await pool.query(
+                `SELECT u.*, u.role, d.name as department_name
+                 FROM users u
+                 LEFT JOIN departments d ON u.department_id = d.id
+                 WHERE u.role ILIKE $1 AND u.status = 'active'
+                 ORDER BY u.created_at ASC LIMIT 1`,
+                [targetRole]
+            )
+            : await pool.query(
+                `SELECT u.*, u.role, d.name as department_name
+                 FROM users u
+                 LEFT JOIN departments d ON u.department_id = d.id
+                 WHERE u.status = 'active'
+                 ORDER BY u.role = 'admin' DESC NULLS LAST, u.created_at ASC LIMIT 1`
+            );
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: `No ${targetRole} account available for demo` });
