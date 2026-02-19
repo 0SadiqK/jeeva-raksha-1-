@@ -17,10 +17,12 @@ const pool = new pg.Pool({
 });
 
 const DEMO_ACCOUNTS = [
+    { email: 'admin@jeevaraksha.in', password: 'admin123' },
     { email: 'rajesh.kumar@jeevaraksha.in', password: 'admin123' },
     { email: 'aditi.sharma@jeevaraksha.in', password: 'doctor123' },
-    { email: 'karthik.iyer@jeevaraksha.in', password: 'pharma123' },
-    { email: 'meera.nair@jeevaraksha.in', password: 'patient123' },
+    { email: 'priya.nair@jeevaraksha.in', password: 'doctor123' },
+    { email: 'suresh.patil@jeevaraksha.in', password: 'doctor123' },
+    { email: 'meera.krishnan@jeevaraksha.in', password: 'doctor123' },
 ];
 
 async function seed() {
@@ -45,9 +47,7 @@ async function seed() {
     console.log('─────────────────────────────────────────────');
     console.log('  Admin:      admin@jeevaraksha.in / admin123');
     console.log('  Doctor:     aditi.sharma@jeevaraksha.in / doctor123');
-    console.log('  Pharmacist: pharmacist@jeevaraksha.in / pharma123');
-    console.log('  Patient:    patient@jeevaraksha.in / patient123');
-    console.log('  Demo:       demo@jeevaraksha.in / demo123');
+    console.log('  Demo:       Use "Try Demo" button for quick access');
     console.log('─────────────────────────────────────────────\n');
 
     await pool.end();
