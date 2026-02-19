@@ -4,6 +4,12 @@ import { Patient } from '../types';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import {
+  Search, Plus, ArrowLeft, Edit2, Trash2, ChevronRight,
+  Loader2, User, Calendar, Phone, Mail, MapPin,
+  FileText, Activity, AlertCircle, CheckCircle2, XCircle,
+  Stethoscope, Bed, Upload, ArrowRight
+} from 'lucide-react';
 
 const Patients: React.FC = () => {
   const { showToast } = useToast();
@@ -92,38 +98,39 @@ const Patients: React.FC = () => {
   // Patient detail view
   if (selectedPatient) {
     return (
-      <div className="animate-in slide-in-from-right duration-500 space-y-8">
+      <div className="animate-in slide-in-from-right duration-500 space-y-6 max-w-[1600px] mx-auto p-6">
         <button
           onClick={() => setSelectedPatient(null)}
-          className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors font-bold text-xs uppercase tracking-widest"
+          className="flex items-center gap-2 text-text-muted hover:text-text-main transition-colors font-bold text-xs uppercase tracking-widest"
         >
-          <span>←</span> Back to Patient List
+          <ArrowLeft size={14} />
+          <span>Back to Patient List</span>
         </button>
 
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-12 lg:col-span-4 space-y-8">
-            <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm text-center">
-              <div className="w-24 h-24 bg-primary/5 rounded-[2.5rem] flex items-center justify-center text-primary text-4xl font-black mx-auto mb-6 border border-primary/10">
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            <div className="bg-hospital-card p-6 rounded-2xl border border-hospital-border shadow-card text-center">
+              <div className="w-20 h-20 bg-primary/5 rounded-2xl flex items-center justify-center text-primary text-3xl font-black mx-auto mb-4 border border-primary/10">
                 {selectedPatient.name?.charAt(0)}
               </div>
-              <h2 className="text-2xl font-black text-slate-900">{selectedPatient.name}</h2>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{selectedPatient.uhid}</p>
+              <h2 className="text-xl font-bold text-text-main">{selectedPatient.name}</h2>
+              <p className="text-xs font-bold text-text-muted uppercase tracking-widest mt-1">{selectedPatient.uhid}</p>
 
-              <div className="grid grid-cols-2 gap-4 mt-8">
-                <div className="bg-hospital-bg p-4 rounded-2xl border border-slate-50 text-left">
-                  <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Age / Gender</p>
-                  <p className="text-sm font-bold text-slate-900">{calcAge(selectedPatient.date_of_birth)}y • {selectedPatient.gender}</p>
+              <div className="grid grid-cols-2 gap-3 mt-6">
+                <div className="bg-hospital-bg p-3 rounded-xl border border-hospital-border text-left">
+                  <p className="text-[9px] font-bold text-text-muted uppercase mb-1">Age / Gender</p>
+                  <p className="text-sm font-bold text-text-main">{calcAge(selectedPatient.date_of_birth)}y • {selectedPatient.gender}</p>
                 </div>
-                <div className="bg-hospital-bg p-4 rounded-2xl border border-slate-50 text-left">
-                  <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Blood Group</p>
+                <div className="bg-hospital-bg p-3 rounded-xl border border-hospital-border text-left">
+                  <p className="text-[9px] font-bold text-text-muted uppercase mb-1">Blood Group</p>
                   <p className="text-sm font-bold text-danger">{selectedPatient.blood_group || '—'}</p>
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-primary/5 border border-primary/10 rounded-2xl flex justify-between items-center">
-                <span className="text-[10px] font-black text-primary uppercase">Status</span>
+              <div className="mt-4 p-3 bg-primary/5 border border-primary/10 rounded-xl flex justify-between items-center">
+                <span className="text-[10px] font-bold text-primary uppercase">Status</span>
                 <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase border ${getStatusColor(selectedPatient.status)}`}>
+                  <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border ${getStatusColor(selectedPatient.status)}`}>
                     {selectedPatient.status}
                   </span>
                   {isAdmin && (
@@ -132,77 +139,99 @@ const Patients: React.FC = () => {
                         handleEditPatient(selectedPatient);
                         setSelectedPatient(null);
                       }}
-                      className="p-1.5 text-slate-400 hover:text-primary transition-colors"
+                      className="p-1.5 text-text-muted hover:text-primary transition-colors"
                     >
-                      ✎
+                      <Edit2 size={14} />
                     </button>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-6">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Clinical Snapshot</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-danger/5 border border-danger/10 rounded-2xl">
-                  <p className="text-[9px] font-black text-danger uppercase mb-2">Allergies</p>
+            <div className="bg-hospital-card p-6 rounded-2xl border border-hospital-border shadow-card space-y-4">
+              <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-widest flex items-center gap-2">
+                <Activity size={12} /> Clinical Snapshot
+              </h3>
+              <div className="space-y-3">
+                <div className="p-3 bg-danger/5 border border-danger/10 rounded-xl">
+                  <p className="text-[9px] font-bold text-danger uppercase mb-2">Allergies</p>
                   <div className="flex flex-wrap gap-2">
                     {selectedPatient.allergies?.length ? selectedPatient.allergies.map((a: string) => (
-                      <span key={a} className="bg-white px-2 py-1 rounded-lg text-[10px] font-bold text-danger border border-danger/20">{a}</span>
-                    )) : <span className="text-[10px] text-slate-400 italic">No known allergies</span>}
+                      <span key={a} className="bg-white px-2 py-1 rounded-md text-[10px] font-bold text-danger border border-danger/20">{a}</span>
+                    )) : <span className="text-[10px] text-text-muted italic">No known allergies</span>}
                   </div>
                 </div>
-                <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
-                  <p className="text-[9px] font-black text-amber-600 uppercase mb-2">Chronic Conditions</p>
+                <div className="p-3 bg-warning/5 border border-warning/10 rounded-xl">
+                  <p className="text-[9px] font-bold text-warning uppercase mb-2">Chronic Conditions</p>
                   <div className="flex flex-wrap gap-2">
                     {selectedPatient.chronic_conditions?.length ? selectedPatient.chronic_conditions.map((c: string) => (
-                      <span key={c} className="bg-white px-2 py-1 rounded-lg text-[10px] font-bold text-amber-600 border border-amber-200">{c}</span>
-                    )) : <span className="text-[10px] text-slate-400 italic">No recorded conditions</span>}
+                      <span key={c} className="bg-white px-2 py-1 rounded-md text-[10px] font-bold text-warning border border-warning/20">{c}</span>
+                    )) : <span className="text-[10px] text-text-muted italic">No recorded conditions</span>}
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="col-span-12 lg:col-span-8 space-y-8">
-            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
-              <div className="flex justify-between items-center mb-10">
-                <h3 className="text-xl font-black text-slate-900 tracking-tight">EMR Timeline</h3>
+          <div className="col-span-12 lg:col-span-8 space-y-6">
+            <div className="bg-hospital-card p-8 rounded-2xl border border-hospital-border shadow-card min-h-[400px]">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="text-lg font-bold text-text-main tracking-tight flex items-center gap-2">
+                  <FileText size={20} className="text-primary" /> EMR Timeline
+                </h3>
+                <button className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline">View Full History</button>
               </div>
 
-              <div className="relative space-y-8 before:absolute before:inset-0 before:left-5 before:w-0.5 before:bg-slate-50 before:h-full">
+              <div className="relative space-y-6 before:absolute before:inset-0 before:left-4 before:w-px before:bg-hospital-border before:h-full">
                 {selectedPatient.history?.length ? selectedPatient.history.map((h: any, i: number) => (
-                  <div key={i} className="relative pl-12 flex gap-6">
-                    <div className="absolute left-3 w-4 h-4 rounded-full bg-white border-4 border-primary mt-1 shadow-sm"></div>
-                    <div className="flex-1 p-6 bg-hospital-bg rounded-3xl border border-slate-100 group hover:bg-white hover:shadow-xl transition-all">
-                      <div className="flex justify-between items-start mb-2">
+                  <div key={i} className="relative pl-10 flex gap-4">
+                    <div className="absolute left-2.5 w-3 h-3 rounded-full bg-white border-2 border-primary mt-1.5 shadow-sm z-10"></div>
+                    <div className="flex-1 p-4 bg-hospital-bg rounded-xl border border-hospital-border hover:bg-white hover:shadow-md transition-all group">
+                      <div className="flex justify-between items-start mb-1">
                         <div>
-                          <p className="text-[9px] font-black text-primary uppercase tracking-widest">{h.type} Visit</p>
-                          <h4 className="text-base font-black text-slate-900 mt-1">{h.reason || 'Visit'}</h4>
+                          <p className="text-[9px] font-bold text-primary uppercase tracking-widest mb-0.5">{h.type} Visit</p>
+                          <h4 className="text-sm font-bold text-text-main">{h.reason || 'Routine Checkup'}</h4>
                         </div>
-                        <span className="text-[10px] font-bold text-slate-400">{new Date(h.date).toLocaleDateString()}</span>
+                        <span className="text-[10px] font-medium text-text-muted flex items-center gap-1">
+                          <Calendar size={10} />
+                          {new Date(h.date).toLocaleDateString()}
+                        </span>
                       </div>
-                      <p className="text-xs text-slate-500 font-medium">Attending: <span className="text-slate-900 font-bold">{h.doctor}</span></p>
+                      <p className="text-xs text-text-body font-medium flex items-center gap-1.5 mt-2">
+                        <User size={12} className="text-text-muted" />
+                        Attending: <span className="text-text-main font-bold">{h.doctor}</span>
+                      </p>
                     </div>
                   </div>
                 )) : (
-                  <div className="text-center py-12 text-slate-400 text-sm">No visit history yet</div>
+                  <div className="text-center py-12 text-text-muted text-sm flex flex-col items-center gap-2">
+                    <div className="w-12 h-12 bg-hospital-bg rounded-full flex items-center justify-center">
+                      <FileText size={24} className="opacity-20" />
+                    </div>
+                    No visit history yet
+                  </div>
                 )}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <button className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
-                <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center text-primary text-2xl mx-auto mb-4 group-hover:bg-primary group-hover:text-white transition-all">🖋️</div>
-                <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Order Lab/Rad</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <button className="bg-hospital-card p-5 rounded-xl border border-hospital-border shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all group text-left">
+                <div className="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-all">
+                  <Activity size={20} />
+                </div>
+                <p className="text-[10px] font-bold text-text-main uppercase tracking-widest">Order Lab/Rad</p>
               </button>
-              <button className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
-                <div className="w-12 h-12 bg-success/5 rounded-2xl flex items-center justify-center text-success text-2xl mx-auto mb-4 group-hover:bg-success group-hover:text-white transition-all">🏥</div>
-                <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Admit / Transfer</p>
+              <button className="bg-hospital-card p-5 rounded-xl border border-hospital-border shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all group text-left">
+                <div className="w-10 h-10 bg-success/5 rounded-lg flex items-center justify-center text-success mb-3 group-hover:bg-success group-hover:text-white transition-all">
+                  <Bed size={20} />
+                </div>
+                <p className="text-[10px] font-bold text-text-main uppercase tracking-widest">Admit / Transfer</p>
               </button>
-              <button className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
-                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 text-2xl mx-auto mb-4 group-hover:bg-slate-900 group-hover:text-white transition-all">📁</div>
-                <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Upload Docs</p>
+              <button className="bg-hospital-card p-5 rounded-xl border border-hospital-border shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all group text-left">
+                <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-text-muted mb-3 group-hover:bg-text-main group-hover:text-white transition-all">
+                  <Upload size={20} />
+                </div>
+                <p className="text-[10px] font-bold text-text-main uppercase tracking-widest">Upload Docs</p>
               </button>
             </div>
           </div>
@@ -214,88 +243,112 @@ const Patients: React.FC = () => {
   // Registration Form
   if (showRegisterForm) {
     return (
-      <div className="space-y-10 animate-in fade-in duration-500 max-w-3xl mx-auto">
+      <div className="space-y-8 animate-in fade-in duration-500 max-w-3xl mx-auto p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-2xl font-black text-text-main tracking-tight">
               {(newPatient as any).id ? 'Edit Patient Record' : 'Register New Patient'}
             </h2>
-            <p className="text-sm font-medium text-slate-500">
+            <p className="text-sm font-medium text-text-muted">
               {(newPatient as any).id ? 'Update patient details.' : 'Enter patient details to create a new record.'}
             </p>
           </div>
-          <button onClick={() => setShowRegisterForm(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">
+          <button onClick={() => setShowRegisterForm(false)} className="px-5 py-2.5 bg-white border border-hospital-border text-text-body rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-hospital-bg transition-colors">
             Cancel
           </button>
         </div>
 
-        <form onSubmit={handleRegister} className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm space-y-6">
+        <form onSubmit={handleRegister} className="bg-hospital-card p-8 rounded-2xl border border-hospital-border shadow-card space-y-6">
           <div className="grid grid-cols-2 gap-5">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Full Name *</label>
-              <input value={newPatient.name} onChange={e => setNewPatient({ ...newPatient, name: e.target.value })}
-                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" required />
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Full Name *</label>
+              <div className="relative">
+                <User size={16} className="absolute left-4 top-3.5 text-text-muted" />
+                <input value={newPatient.name} onChange={e => setNewPatient({ ...newPatient, name: e.target.value })}
+                  className="w-full bg-hospital-input border border-hospital-border rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" required placeholder="Ex. Rajesh Kumar" />
+              </div>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Date of Birth *</label>
-              <input type="date" value={newPatient.date_of_birth} onChange={e => setNewPatient({ ...newPatient, date_of_birth: e.target.value })}
-                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" required />
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Date of Birth *</label>
+              <div className="relative">
+                <Calendar size={16} className="absolute left-4 top-3.5 text-text-muted" />
+                <input type="date" value={newPatient.date_of_birth} onChange={e => setNewPatient({ ...newPatient, date_of_birth: e.target.value })}
+                  className="w-full bg-hospital-input border border-hospital-border rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" required />
+              </div>
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-5">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Gender *</label>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Gender *</label>
               <select value={newPatient.gender} onChange={e => setNewPatient({ ...newPatient, gender: e.target.value })}
-                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" required>
-                <option value="">Select</option>
+                className="w-full bg-hospital-input border border-hospital-border rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" required>
+                <option value="">Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Blood Group</label>
-              <input value={newPatient.blood_group} onChange={e => setNewPatient({ ...newPatient, blood_group: e.target.value })}
-                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Blood Group</label>
+              <div className="relative">
+                <Activity size={16} className="absolute left-4 top-3.5 text-text-muted" />
+                <input value={newPatient.blood_group} onChange={e => setNewPatient({ ...newPatient, blood_group: e.target.value })}
+                  className="w-full bg-hospital-input border border-hospital-border rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" placeholder="Ex. O+" />
+              </div>
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-5">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Phone</label>
-              <input value={newPatient.phone} onChange={e => setNewPatient({ ...newPatient, phone: e.target.value })}
-                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Phone</label>
+              <div className="relative">
+                <Phone size={16} className="absolute left-4 top-3.5 text-text-muted" />
+                <input value={newPatient.phone} onChange={e => setNewPatient({ ...newPatient, phone: e.target.value })}
+                  className="w-full bg-hospital-input border border-hospital-border rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" placeholder="10-digit mobile" />
+              </div>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Email</label>
-              <input type="email" value={newPatient.email} onChange={e => setNewPatient({ ...newPatient, email: e.target.value })}
-                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Email</label>
+              <div className="relative">
+                <Mail size={16} className="absolute left-4 top-3.5 text-text-muted" />
+                <input type="email" value={newPatient.email} onChange={e => setNewPatient({ ...newPatient, email: e.target.value })}
+                  className="w-full bg-hospital-input border border-hospital-border rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" placeholder="patient@example.com" />
+              </div>
             </div>
           </div>
+
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Address</label>
-            <input value={newPatient.address} onChange={e => setNewPatient({ ...newPatient, address: e.target.value })}
-              className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Address</label>
+            <div className="relative">
+              <MapPin size={16} className="absolute left-4 top-3.5 text-text-muted" />
+              <input value={newPatient.address} onChange={e => setNewPatient({ ...newPatient, address: e.target.value })}
+                className="w-full bg-hospital-input border border-hospital-border rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" placeholder="Full residential address" />
+            </div>
           </div>
+
           <div className="grid grid-cols-3 gap-5">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">City</label>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">City</label>
               <input value={newPatient.city} onChange={e => setNewPatient({ ...newPatient, city: e.target.value })}
-                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+                className="w-full bg-hospital-input border border-hospital-border rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">State</label>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">State</label>
               <input value={newPatient.state} onChange={e => setNewPatient({ ...newPatient, state: e.target.value })}
-                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+                className="w-full bg-hospital-input border border-hospital-border rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Pincode</label>
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Pincode</label>
               <input value={newPatient.pincode} onChange={e => setNewPatient({ ...newPatient, pincode: e.target.value })}
-                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+                className="w-full bg-hospital-input border border-hospital-border rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" />
             </div>
           </div>
+
           <button type="submit" disabled={saving}
-            className="w-full bg-primary text-white font-black py-4 rounded-2xl mt-4 hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50">
-            {saving ? '⏳ Saving...' : ((newPatient as any).id ? '✓ Update Patient' : '✓ Register Patient')}
+            className="w-full bg-primary text-white font-bold py-3.5 rounded-xl mt-4 hover:bg-teal-800 shadow-lg shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2">
+            {saving ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+            {saving ? 'Saving Record...' : ((newPatient as any).id ? 'Update Patient Record' : 'Register Patient')}
           </button>
         </form>
       </div>
@@ -304,11 +357,11 @@ const Patients: React.FC = () => {
 
   // Main patient list
   return (
-    <div className="space-y-10 animate-in fade-in duration-500 max-w-[1600px] mx-auto">
+    <div className="space-y-8 animate-in fade-in duration-500 max-w-[1600px] mx-auto p-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Master Patient Index</h2>
-          <p className="text-sm font-medium text-slate-500">Search and manage clinical identities across Jeeva Raksha.</p>
+          <h2 className="text-2xl font-black text-text-main tracking-tight">Master Patient Index</h2>
+          <p className="text-sm font-medium text-text-muted mt-1">Search and manage clinical identities across Jeeva Raksha.</p>
         </div>
         <div className="flex w-full md:w-auto gap-4">
           <div className="relative flex-1 md:w-80">
@@ -317,73 +370,75 @@ const Patients: React.FC = () => {
               placeholder="Search by Name or UHID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20 shadow-sm"
+              className="w-full bg-white border border-hospital-border rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 shadow-sm transition-all"
             />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
           </div>
           {isAdmin && (
             <button onClick={() => setShowRegisterForm(true)}
-              className="px-6 py-3 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all">
-              + Register
+              className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:bg-teal-800 transition-all flex items-center gap-2">
+              <Plus size={14} />
+              Register
             </button>
           )}
         </div>
       </div>
 
       {error && (
-        <div className="bg-danger/10 border border-danger/20 text-danger p-4 rounded-2xl text-sm font-bold">
-          ⚠️ {error} — Make sure the backend server is running (npm run server)
+        <div className="bg-danger/5 border border-danger/10 text-danger p-4 rounded-xl text-sm font-bold flex items-center gap-3">
+          <AlertCircle size={18} />
+          {error} — Make sure the backend server is running (npm run server)
         </div>
       )}
 
-      <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-hospital-card rounded-2xl border border-hospital-border shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-50/50">
-                <th className="px-10 py-6">Patient Identity</th>
-                <th className="px-10 py-6">Demographics</th>
-                <th className="px-10 py-6">Contact</th>
-                <th className="px-10 py-6">Status</th>
-                <th className="px-10 py-6 text-right">Actions</th>
+              <tr className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] bg-hospital-bg/50 border-b border-hospital-border">
+                <th className="px-8 py-5">Patient Identity</th>
+                <th className="px-8 py-5">Demographics</th>
+                <th className="px-8 py-5">Contact</th>
+                <th className="px-8 py-5">Status</th>
+                <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-hospital-border">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="py-24 text-center">
-                    <div className="text-4xl mb-4 animate-spin opacity-30">⏳</div>
-                    <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Loading patients...</p>
+                    <Loader2 size={32} className="animate-spin text-primary/30 mx-auto mb-4" />
+                    <p className="text-xs font-bold text-text-muted uppercase tracking-widest">Loading patients...</p>
                   </td>
                 </tr>
               ) : patients.length > 0 ? patients.map(p => (
-                <tr key={p.id} className="group hover:bg-hospital-bg transition-colors cursor-pointer" onClick={() => setSelectedPatient(p)}>
-                  <td className="px-10 py-8">
+                <tr key={p.id} className="group hover:bg-hospital-bg/50 transition-colors cursor-pointer" onClick={() => setSelectedPatient(p)}>
+                  <td className="px-8 py-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center text-primary font-black shadow-inner border border-primary/10">
+                      <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center text-primary font-black shadow-sm border border-primary/10 group-hover:bg-primary group-hover:text-white transition-colors">
                         {p.name?.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-black text-slate-900 leading-none">{p.name}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">{p.uhid}</p>
+                        <p className="text-sm font-bold text-text-main leading-none group-hover:text-primary transition-colors">{p.name}</p>
+                        <p className="text-[10px] font-semibold text-text-muted uppercase tracking-widest mt-1.5">{p.uhid}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-10 py-8">
-                    <p className="text-xs font-bold text-slate-600">{calcAge(p.date_of_birth)}y • {p.gender}</p>
-                    <p className="text-[9px] font-black text-danger uppercase mt-1">{p.blood_group || '—'}</p>
+                  <td className="px-8 py-6">
+                    <p className="text-xs font-semibold text-text-body">{calcAge(p.date_of_birth)}y • {p.gender}</p>
+                    <p className="text-[9px] font-black text-danger uppercase mt-1 opacity-80">{p.blood_group || '—'}</p>
                   </td>
-                  <td className="px-10 py-8">
-                    <p className="text-xs font-bold text-slate-600">{p.phone || '—'}</p>
-                    <p className="text-[9px] text-slate-400 mt-1">{p.city || ''}</p>
+                  <td className="px-8 py-6">
+                    <p className="text-xs font-semibold text-text-body">{p.phone || '—'}</p>
+                    <p className="text-[9px] text-text-muted mt-1">{p.city || ''}</p>
                   </td>
-                  <td className="px-10 py-8">
-                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase border ${getStatusColor(p.status)}`}>
+                  <td className="px-8 py-6">
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase border ${getStatusColor(p.status)}`}>
                       {p.status}
                     </span>
                   </td>
-                  <td className="px-10 py-8 text-right">
-                    <div className="flex justify-end gap-2">
+                  <td className="px-8 py-6 text-right">
+                    <div className="flex justify-end gap-2 text-text-muted">
                       {isAdmin && (
                         <>
                           <button
@@ -391,9 +446,10 @@ const Patients: React.FC = () => {
                               e.stopPropagation();
                               handleEditPatient(p);
                             }}
-                            className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-primary hover:border-primary/20 hover:shadow-lg transition-all"
+                            className="p-2 bg-white border border-hospital-border rounded-lg hover:text-primary hover:border-primary/30 transition-all"
+                            title="Edit"
                           >
-                            <span className="text-xl">✎</span>
+                            <Edit2 size={16} />
                           </button>
                           <button
                             onClick={(e) => {
@@ -402,14 +458,15 @@ const Patients: React.FC = () => {
                                 api.deletePatient(p.id).then(() => fetchPatients());
                               }
                             }}
-                            className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-danger hover:border-danger/20 hover:shadow-lg transition-all"
+                            className="p-2 bg-white border border-hospital-border rounded-lg hover:text-danger hover:border-danger/30 transition-all"
+                            title="Delete"
                           >
-                            <span className="text-xl">🗑️</span>
+                            <Trash2 size={16} />
                           </button>
                         </>
                       )}
-                      <button className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-primary hover:border-primary/20 hover:shadow-lg transition-all">
-                        <span className="text-xl">➔</span>
+                      <button className="p-2 bg-white border border-hospital-border rounded-lg hover:text-primary hover:border-primary/30 transition-all group-hover:bg-primary group-hover:text-white group-hover:border-primary">
+                        <ChevronRight size={16} />
                       </button>
                     </div>
                   </td>
@@ -417,8 +474,11 @@ const Patients: React.FC = () => {
               )) : (
                 <tr>
                   <td colSpan={5} className="py-24 text-center">
-                    <div className="text-4xl mb-4 grayscale opacity-20">🔎</div>
-                    <p className="text-sm font-black text-slate-400 uppercase tracking-widest">No matching patients found</p>
+                    <div className="w-16 h-16 bg-hospital-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search size={32} className="text-text-muted opacity-50" />
+                    </div>
+                    <p className="text-xs font-bold text-text-muted uppercase tracking-widest">No matching patients found</p>
+                    <p className="text-[10px] text-text-muted mt-1">Try searching by name or UHID</p>
                   </td>
                 </tr>
               )}
