@@ -144,34 +144,40 @@ const DoctorPad: React.FC = () => {
   const unseenCount = wardPatients.filter(p => !p.seenToday).length;
 
   return (
-    <div className="max-w-[1600px] mx-auto animate-in fade-in duration-500 space-y-8">
+    <div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-5 duration-700 space-y-10 p-8">
       {/* Session Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
-        <div className="flex items-center gap-6">
-          <div className="h-16 w-16 bg-medical-gradient rounded-[2rem] flex items-center justify-center text-white text-3xl border border-white/20 shadow-lg">👨‍⚕️</div>
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Active Ward Rounds: General Ward A</h1>
-            <div className="flex items-center gap-4 mt-1">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Attending: Dr. Aditi Sharma</p>
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}</p>
+      <div className="bg-medical-gradient p-10 rounded-[4rem] text-white relative overflow-hidden shadow-2xl border border-white/20">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative z-10">
+          <div className="flex items-center gap-8">
+            <div className="h-24 w-24 bg-white/10 backdrop-blur-xl rounded-[2.5rem] flex items-center justify-center text-5xl border border-white/20 shadow-2xl transform -rotate-3 hover:rotate-0 transition-transform">👨‍⚕️</div>
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="px-5 py-1.5 bg-emerald-500 rounded-full text-[10px] font-black text-white uppercase tracking-[0.3em] shadow-lg shadow-emerald-500/20">Live Session</div>
+              </div>
+              <h1 className="text-4xl font-black text-white tracking-tighter leading-none">General Ward Rounds: Suite A</h1>
+              <div className="flex items-center gap-4 mt-4">
+                <p className="text-[11px] font-black text-white/60 uppercase tracking-[0.2em]">Attending: Dr. Aditi Sharma</p>
+                <span className="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+                <p className="text-[11px] font-black text-white/60 uppercase tracking-[0.2em]">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex gap-4 w-full md:w-auto">
-          {unseenCount > 0 && (
-            <div className="bg-warning/10 border border-warning/20 px-6 py-3 rounded-2xl flex items-center gap-3 animate-pulse">
-              <span className="text-warning">⚠️</span>
-              <span className="text-[10px] font-black text-warning uppercase tracking-widest">{unseenCount} Patients Pending Rounds</span>
-            </div>
-          )}
-          <button
-            onClick={finalizeRound}
-            disabled={isProcessing}
-            className="flex-1 md:flex-none px-10 py-4 bg-medical-gradient text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-          >
-            {isProcessing ? 'Saving...' : 'Finalize & Sign All'}
-          </button>
+          <div className="flex gap-4 w-full md:w-auto">
+            {unseenCount > 0 && (
+              <div className="bg-warning/10 border border-warning/20 px-6 py-3 rounded-2xl flex items-center gap-3 animate-pulse">
+                <span className="text-warning">⚠️</span>
+                <span className="text-[10px] font-black text-warning uppercase tracking-widest">{unseenCount} Patients Pending Rounds</span>
+              </div>
+            )}
+            <button
+              onClick={finalizeRound}
+              disabled={isProcessing}
+              className="flex-1 md:flex-none px-10 py-4 bg-medical-gradient text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              {isProcessing ? 'Saving...' : 'Finalize & Sign All'}
+            </button>
+          </div>
         </div>
       </div>
 

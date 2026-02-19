@@ -103,41 +103,47 @@ const Emergency: React.FC = () => {
   return (
     <div className="max-w-[1600px] mx-auto animate-in fade-in duration-700 space-y-8 pb-20 p-8">
       {/* Header with Stats */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 bg-primary p-8 rounded-2xl text-white shadow-2xl relative overflow-hidden border border-primary/20">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 animate-pulse"></div>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 bg-gradient-to-br from-blue-50 to-indigo-50 p-10 rounded-[3rem] text-slate-900 shadow-2xl relative overflow-hidden border border-blue-100">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-rose-400/5 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2"></div>
 
         <div className="relative z-10">
-          <div className="flex items-center gap-4 mb-3">
-            <div className="w-12 h-12 bg-danger rounded-xl flex items-center justify-center text-white animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.4)]">
-              <Siren size={24} />
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-14 h-14 bg-rose-500 rounded-2xl flex items-center justify-center text-white animate-pulse shadow-xl shadow-rose-500/30">
+              <Siren size={28} />
             </div>
-            <h2 className="text-2xl font-black tracking-tight">Trauma Command Center</h2>
+            <div>
+              <h2 className="text-3xl font-black tracking-tighter text-slate-900">Trauma Hub</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-600">Response Mode Active</span>
+              </div>
+            </div>
           </div>
-          <p className="text-sm font-bold text-white/70 font-kannada flex items-center gap-2">
-            <span>“ತುರ್ತು ಪರಿಸ್ಥಿತಿ — ತಕ್ಷಣದ ಸ್ಪಂದನೆ”</span>
-            <span className="w-1 h-1 rounded-full bg-white/30" />
-            <span>Life critical response system.</span>
+          <p className="text-sm font-bold text-slate-500 font-kannada flex items-center gap-3">
+            <span className="text-blue-600">“ತುರ್ತು ಪರಿಸ್ಥಿತಿ — ತಕ್ಷಣದ ಸ್ಪಂದನೆ”</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Critical Response Protocol</span>
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10 w-full lg:w-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 relative z-10 w-full lg:w-auto">
           <div className="text-center md:text-left">
-            <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Active Cases</p>
-            <p className="text-3xl font-black text-white">{erStats.active}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Active Cases</p>
+            <p className="text-4xl font-black text-slate-900">{erStats.active}</p>
           </div>
           <div className="text-center md:text-left">
-            <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Critical Red</p>
-            <div className="flex items-center gap-2 justify-center md:justify-start">
-              <span className="w-2 h-2 rounded-full bg-danger animate-ping" />
-              <p className="text-3xl font-black text-white">{erStats.critical}</p>
+            <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-2">Critical Red</p>
+            <div className="flex items-center gap-3 justify-center md:justify-start">
+              <p className="text-4xl font-black text-rose-600">{erStats.critical}</p>
             </div>
           </div>
           <div className="text-center md:text-left">
-            <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Free Bays</p>
-            <p className="text-3xl font-black text-white">{erStats.freeBays}</p>
+            <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Free Bays</p>
+            <p className="text-4xl font-black text-emerald-600">{erStats.freeBays}</p>
           </div>
           <div className="text-center md:text-left">
-            <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">On Call</p>
+            <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">On Call</p>
             <p className="text-3xl font-black text-white">{erStats.onCall}</p>
           </div>
         </div>

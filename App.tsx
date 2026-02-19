@@ -144,23 +144,25 @@ const AppContent: React.FC = () => {
   const isHome = activeView === 'HOME';
 
   return (
-    <div className="flex min-h-screen bg-soft-blue font-sans text-text-body">
+    <div className="flex min-h-screen bg-sky-50 font-sans text-text-body relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(at_0%_0%,rgba(37,99,235,0.1)_0,transparent_50%),radial-gradient(at_50%_0%,rgba(14,165,233,0.1)_0,transparent_50%),radial-gradient(at_100%_0%,rgba(22,163,74,0.1)_0,transparent_50%)] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -mr-64 -mb-64 pointer-events-none" />
       {!isHome && <Sidebar activeView={activeView} setActiveView={setActiveView} />}
 
-      <main className={`flex-1 h-screen relative flex flex-col overflow-hidden ${isHome ? 'w-full' : 'bg-soft-blue'}`}>
+      <main className={`flex-1 h-screen relative flex flex-col overflow-hidden ${isHome ? 'w-full' : ''}`}>
 
         {/* Demo Mode Banner */}
         {isDemo && (
-          <div className="bg-medical-gradient text-white px-4 py-1.5 flex justify-between items-center z-50 shadow-sm">
-            <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-              <Eye size={12} />
-              <span>Demo Mode — Changes will not be saved</span>
+          <div className="bg-medical-gradient text-white px-4 py-2 flex justify-between items-center z-50 shadow-xl border-b border-white/10">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3">
+              <Eye size={14} className="animate-pulse" />
+              <span>Secure Demo Session — Sandbox Environment</span>
             </span>
             <button
               onClick={logout}
-              className="text-[9px] font-bold uppercase tracking-wider bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-full border-none cursor-pointer transition-colors"
+              className="text-[9px] font-black uppercase tracking-widest bg-white/20 hover:bg-white/40 text-white px-4 py-1.5 rounded-full border border-white/20 cursor-pointer transition-all active:scale-95"
             >
-              Exit Demo
+              Terminate Session
             </button>
           </div>
         )}
@@ -172,18 +174,17 @@ const AppContent: React.FC = () => {
           const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
           const isUrgent = remainingOverrideTime < 120;
           return (
-            <div className={`text-white py-1.5 px-4 flex justify-between items-center z-[60] transition-colors ${isUrgent ? 'bg-red-800 animate-pulse' : 'bg-danger'
+            <div className={`text-white py-2 px-6 flex justify-between items-center z-[60] shadow-2xl transition-colors ${isUrgent ? 'bg-red-600 animate-pulse' : 'bg-red-700'
               }`}>
-              <span className="text-[9px] font-black uppercase tracking-[0.3em] flex items-center gap-3">
-                <span className="flex items-center gap-2"><AlertTriangle size={12} /> CRITICAL OVERRIDE ACTIVE</span>
-                <span className={`font-mono px-2 py-0.5 rounded-md text-[10px] ${isUrgent ? 'bg-white/30 text-white' : 'bg-white/15 text-white/90'
-                  }`}>{timeStr}</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-4">
+                <span className="flex items-center gap-2"><AlertTriangle size={16} /> SYSTEM OVERRIDE ACTIVE</span>
+                <span className={`font-mono px-3 py-1 rounded-lg text-[11px] bg-white/20 border border-white/20`}>{timeStr}</span>
               </span>
               <button
                 onClick={deactivateOverride}
-                className="text-[9px] font-black uppercase tracking-widest bg-white/20 px-4 py-0.5 rounded-full hover:bg-white/30 transition-all"
+                className="text-[10px] font-black uppercase tracking-widest bg-white text-red-700 px-6 py-1.5 rounded-full hover:bg-white/90 transition-all shadow-lg active:scale-95"
               >
-                Exit Override
+                Exit Emergency Mode
               </button>
             </div>
           );
@@ -191,8 +192,9 @@ const AppContent: React.FC = () => {
 
         {/* Header */}
         {!isHome && (
-          <header className="sticky top-0 z-40 flex h-20 w-full items-center justify-between border-b border-hospital-border bg-white shadow-xl shadow-slate-200/50 px-8 shrink-0">
-            <div className="flex items-center gap-6">
+          <header className="sticky top-0 z-40 flex h-20 w-full items-center justify-between bg-white/90 backdrop-blur-xl px-8 shadow-2xl shadow-blue-900/5 relative overflow-hidden">
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-medical-gradient opacity-50" />
+            <div className="flex items-center gap-6 relative z-10">
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-primary/10 rounded-xl text-primary md:hidden" onClick={() => setActiveView('HOME')}>
                   <HomeIcon size={20} />

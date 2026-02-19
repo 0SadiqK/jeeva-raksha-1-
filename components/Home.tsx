@@ -134,25 +134,25 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   //  R E N D E R
   // ═══════════════════════════════════════════════════════════
   return (
-    <div className="min-h-screen bg-hospital-bg font-sans selection:bg-primary/20 p-8 space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+    <div className="min-h-screen relative p-8 space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+      {/* Decorative Glows */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[150px] pointer-events-none animate-pulse" />
+      <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-emerald-400/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* ── GREETING + TOP BAR ───────────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative">
-        <div className="absolute -top-10 -left-10 w-48 h-48 bg-primary/30 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute -top-20 -left-20 w-80 h-80 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none" />
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-1">
-            <h2 className="text-3xl font-black text-text-main tracking-tight">
-              {greet()}, <span className="text-primary">{user?.name?.split(' ')[0] || 'Doctor'}</span>
-            </h2>
-            <div className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-widest ${badge.bg}`}>
-              <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-              {badge.label}
-            </div>
+          <div className="flex items-center gap-4 mb-2">
+            <div className="px-4 py-1.5 bg-blue-600 rounded-full text-[10px] font-black text-white uppercase tracking-[0.3em] shadow-lg shadow-blue-500/20">Secure Operations</div>
           </div>
-          <p className="text-sm font-medium text-text-muted mt-1 font-kannada flex items-center gap-2">
-            <span>"ಜೀವ ರಕ್ಷಣೆ — ಪ್ರತಿ ಕ್ಷಣ ಮುಖ್ಯ"</span>
-            <span className="w-1 h-1 rounded-full bg-slate-300" />
-            <span>Every moment counts.</span>
+          <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none">
+            {greet()}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-sky-400">{user?.name?.split(' ')[0] || 'Doctor'}</span>
+          </h2>
+          <p className="text-sm font-bold text-slate-400 mt-4 font-kannada flex items-center gap-3">
+            <span className="text-blue-500">"ಜೀವ ರಕ್ಷಕ — ಪ್ರತಿ ಕ್ಷಣ ಮುಖ್ಯ"</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+            <span className="uppercase tracking-[0.2em] text-[10px]">Guardians of Life — Every Moment Matters</span>
           </p>
         </div>
 
@@ -223,21 +223,22 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           { label: 'Active OTs', value: '03', icon: <Scissors size={20} />, trend: '2 scheduled', trendUp: true, color: 'text-white', bg: 'bg-sky-500', border: 'border-sky-200' },
           { label: 'Revenue Today', value: `₹${((stats?.revenue || 428500) / 1000).toFixed(0)}K`, icon: <Banknote size={20} />, trend: '+15%', trendUp: true, color: 'text-white', bg: 'bg-indigo-600', border: 'border-indigo-200' },
         ].map(kpi => (
-          <div key={kpi.label} className={`bg-hospital-card p-5 rounded-2xl border ${kpi.border} shadow-card hover:shadow-card-hover transition-all group`}>
-            <div className="flex justify-between items-start mb-4">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ${kpi.bg} ${kpi.color}`}>
+          <div key={kpi.label} className={`bg-white p-5 rounded-[2rem] border ${kpi.border} shadow-xl hover:shadow-2xl transition-all group relative overflow-hidden`}>
+            <div className={`absolute top-0 left-0 right-0 h-1 ${kpi.bg}`} />
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg ${kpi.bg} ${kpi.color}`}>
                 {kpi.icon}
               </div>
               {kpi.trend && (
-                <div className={`flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-full border ${kpi.trendUp ? 'bg-success/5 text-success border-success/10' : 'bg-danger/5 text-danger border-danger/10'
+                <div className={`flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-full border ${kpi.trendUp ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
                   }`}>
                   {kpi.trendUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                   {kpi.trend}
                 </div>
               )}
             </div>
-            <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.1em] mb-1">{kpi.label}</p>
-            <p className="text-2xl font-black text-text-main tracking-tighter">{kpi.value}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 relative z-10">{kpi.label}</p>
+            <p className="text-3xl font-black text-slate-900 tracking-tighter relative z-10">{kpi.value}</p>
           </div>
         ))}
       </div>
@@ -246,9 +247,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
         {/* Today's Schedule */}
-        <div className="lg:col-span-5 bg-hospital-card rounded-3xl border border-hospital-border shadow-card overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-hospital-border flex justify-between items-center bg-slate-50/50">
-            <div className="flex items-center gap-3">
+        <div className="lg:col-span-5 bg-white rounded-[3rem] border border-blue-100 shadow-2xl shadow-blue-900/5 overflow-hidden flex flex-col relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="p-8 border-b border-blue-50 flex justify-between items-center bg-gradient-to-r from-blue-50/50 to-transparent relative z-10">
+            <div className="flex items-center gap-4">
               <div className="p-2 bg-white border border-slate-100 rounded-lg text-primary">
                 <Calendar size={18} />
               </div>
@@ -291,43 +293,41 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         </div>
 
         {/* AI Insights + Department Status */}
-        <div className="lg:col-span-7 space-y-6">
-
-          {/* AI Risk Engine */}
-          <div className="bg-medical-gradient rounded-3xl p-6 text-white relative overflow-hidden shadow-xl border border-white/10">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4" />
-            <div className="relative z-10 space-y-6">
+        <div className="lg:col-span-7 space-y-8">
+          <div className="bg-gradient-to-br from-blue-50 to-sky-50 rounded-[3rem] p-10 relative overflow-hidden shadow-2xl border border-blue-100">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-400/5 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4" />
+            <div className="relative z-10 space-y-8">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/10 text-accent">
-                    <Activity size={20} />
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl text-blue-600 border border-blue-50">
+                    <Activity size={24} />
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Clinical Decision Support</p>
-                    <h3 className="text-lg font-bold text-white mt-1">AI Risk Monitor</h3>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-1">Clinical Decision Support</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight">AI Risk Hub</h3>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-[9px] font-black text-accent uppercase tracking-widest bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                  Live Analysis
+                <div className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase tracking-widest bg-white border border-blue-100 px-4 py-2 rounded-xl shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                  Real-time Analysis
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {aiInsights.map((insight, idx) => (
-                  <div key={idx} className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-colors group">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-white/80 group-hover:text-white transition-colors">{insight.icon}</span>
-                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border ${insight.risk === 'High' ? 'bg-danger/20 text-danger border-danger/30' :
-                        insight.risk === 'Moderate' ? 'bg-warning/20 text-warning border-warning/30' :
-                          'bg-success/20 text-success border-success/30'
+                  <div key={idx} className="p-6 bg-white/60 backdrop-blur-xl border border-blue-100 rounded-[2rem] hover:bg-white hover:scale-[1.02] transition-all shadow-sm group">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-blue-500 group-hover:scale-110 transition-transform">{insight.icon}</span>
+                      <span className={`text-[9px] font-black px-2.5 py-1 rounded-full border ${insight.risk === 'High' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                        insight.risk === 'Moderate' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                          'bg-emerald-50 text-emerald-600 border-emerald-100'
                         }`}>{insight.risk}</span>
                     </div>
-                    <p className="text-sm font-bold text-white mb-1">{insight.patient}</p>
-                    <p className="text-[10px] text-slate-400 font-medium leading-relaxed mb-3">{insight.detail}</p>
-                    <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-1000 ${insight.color === 'danger' ? 'bg-danger' : insight.color === 'warning' ? 'bg-warning' : 'bg-success'
+                    <p className="text-base font-black text-slate-900 mb-1">{insight.patient}</p>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">{insight.detail}</p>
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                      <div className={`h-full rounded-full transition-all duration-1000 ${insight.color === 'danger' ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]' : insight.color === 'warning' ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]'
                         }`} style={{ width: `${insight.pct}%` }} />
                     </div>
                   </div>

@@ -43,8 +43,12 @@ export default {
             },
             backgroundImage: {
                 'medical-gradient': 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)',
-                'soft-blue': 'linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%)',
-                'glass-white': 'linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
+                'vibrant-mesh': 'radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.1) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(14, 165, 233, 0.1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(22, 163, 74, 0.1) 0, transparent 50%)',
+                'vibrant-blue': 'linear-gradient(to right, #2563eb, #3b82f6)',
+                'vibrant-green': 'linear-gradient(to right, #16a34a, #22c55e)',
+                'vibrant-orange': 'linear-gradient(to right, #ea580c, #f97316)',
+                'soft-blue': 'linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%)',
+                'glass-white': 'linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))',
             }
         },
     },

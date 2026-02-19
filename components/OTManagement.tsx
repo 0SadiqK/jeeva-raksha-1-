@@ -142,32 +142,46 @@ const OTManagement: React.FC = () => {
             ))}
           </div>
 
-          <div className="bg-primary rounded-[3rem] p-8 text-white relative overflow-hidden shadow-2xl mt-8">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2" />
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-[3rem] p-8 text-slate-900 relative overflow-hidden shadow-2xl border border-blue-100 mt-8">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2" />
             <div className="relative z-10 space-y-6">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">⚡</span>
-                <h3 className="text-lg font-black text-white">Efficiency Pulse</h3>
+                <span className="text-2xl p-2 bg-white rounded-xl shadow-lg">⚡</span>
+                <h3 className="text-lg font-black text-slate-800">Efficiency Pulse</h3>
               </div>
               <div className="space-y-4">
                 <div>
-                  <div className="flex justify-between text-[10px] font-black text-white/50 uppercase tracking-widest mb-2">
+                  <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
                     <span>OT Utilization</span>
-                    <span className="text-white">78%</span>
+                    <span className="text-blue-600">78%</span>
                   </div>
-                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-white w-[78%]" />
+                  <div className="h-2 bg-blue-100 rounded-full overflow-hidden shadow-inner">
+                    <div className="h-full bg-blue-500 w-[78%] rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between text-[10px] font-black text-white/50 uppercase tracking-widest mb-2">
-                    <span>Cleaning TAT</span>
-                    <span className="text-white">18m</span>
+                  <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                    <span>Turnover Rate</span>
+                    <span className="text-emerald-600">12m</span>
                   </div>
-                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-success w-[90%]" />
+                  <div className="h-2 bg-emerald-100 rounded-full overflow-hidden shadow-inner">
+                    <div className="h-full bg-emerald-500 w-[85%] rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                   </div>
                 </div>
+                <div>
+                  <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                    <span>Sterility Status</span>
+                    <span className="text-purple-600">Optimal</span>
+                  </div>
+                  <div className="h-2 bg-purple-100 rounded-full overflow-hidden shadow-inner">
+                    <div className="h-full bg-purple-500 w-[95%] rounded-full shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
+                  </div>
+                </div>
+              </div>
+              <div className="pt-4">
+                <button className="w-full py-4 bg-white text-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] transition-all border border-blue-50">
+                  Full Analytics Report
+                </button>
               </div>
             </div>
           </div>

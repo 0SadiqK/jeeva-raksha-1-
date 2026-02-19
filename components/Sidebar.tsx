@@ -96,24 +96,26 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView }) => {
   };
 
   return (
-    <aside className="w-64 bg-hospital-card text-slate-600 flex flex-col border-r border-hospital-border h-screen transition-all duration-300 z-50 shadow-sm">
+    <aside className="w-66 bg-white text-slate-600 flex flex-col border-r border-blue-100 h-screen transition-all duration-300 z-50 shadow-xl shadow-blue-900/5">
       <div
         onClick={() => setActiveView('HOME')}
-        className="h-20 flex items-center gap-4 px-6 border-b border-hospital-border cursor-pointer hover:bg-hospital-bg/50 transition-all bg-medical-gradient"
+        className="h-24 flex items-center gap-4 px-6 border-b border-blue-50 cursor-pointer hover:bg-blue-50/30 transition-all relative overflow-hidden group bg-gradient-to-r from-blue-50 to-white"
       >
-        <div className="h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center shrink-0 text-primary">
-          <Activity size={24} />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="h-12 w-12 bg-medical-gradient shadow-xl rounded-2xl flex items-center justify-center shrink-0 text-white relative z-10">
+          <Activity size={28} />
         </div>
-        <div className="overflow-hidden">
-          <h2 className="text-white font-black text-sm tracking-tight leading-none truncate">{t('brand')}</h2>
-          <p className="text-[10px] font-bold text-white/70 mt-1 font-kannada whitespace-nowrap tracking-wide uppercase">Unified Health System</p>
+        <div className="overflow-hidden relative z-10">
+          <h2 className="text-slate-900 font-black text-lg tracking-tighter leading-none group-hover:scale-105 transition-transform">{t('brand')}</h2>
+          <p className="text-[10px] font-black text-primary mt-1 font-kannada whitespace-nowrap tracking-[0.2em] uppercase opacity-80">Universal Health Hub</p>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar pt-4 pb-10">
+      <div className="flex-1 overflow-y-auto custom-scrollbar pt-8 pb-10 bg-gradient-to-b from-white to-blue-50/20">
         {categories.map((cat, idx) => (
-          <div key={idx} className="mb-6">
-            <h3 className="px-6 mb-2 text-[10px] font-bold text-text-muted uppercase tracking-wider">
+          <div key={idx} className="mb-10 px-4">
+            <h3 className="px-4 mb-4 text-[10px] font-black text-primary/40 uppercase tracking-[0.3em] flex items-center gap-2">
+              <span className="w-3 h-0.5 rounded-full bg-primary/40"></span>
               {t(cat.titleKey)}
             </h3>
             <div className="px-3 space-y-0.5">
@@ -128,19 +130,19 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView }) => {
                     onClick={() => handleNavClick(item.id)}
                     disabled={!accessible}
                     title={!accessible ? `Requires ${requiredLevel} access` : undefined}
-                    className={`w-full group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${!accessible
-                      ? 'opacity-30 cursor-not-allowed'
+                    className={`w-full group relative flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 ${!accessible
+                      ? 'opacity-20 cursor-not-allowed'
                       : activeView === item.id
-                        ? 'bg-medical-gradient text-white font-black shadow-lg shadow-primary/30 scale-[1.02]'
-                        : 'hover:bg-primary/5 text-text-body hover:text-primary'
+                        ? 'bg-blue-600 text-white font-black shadow-2xl shadow-blue-500/30 scale-[1.05]'
+                        : 'hover:bg-blue-50 text-slate-500 hover:text-blue-600'
                       }`}
                   >
-                    <span className={`${accessible ? (activeView === item.id ? 'text-white' : 'text-primary group-hover:scale-110 transition-transform') : 'grayscale'}`}>{item.icon}</span>
-                    <span className="text-[11px] font-black uppercase tracking-wider whitespace-nowrap overflow-hidden flex-1 text-left">
+                    <span className={`${accessible ? (activeView === item.id ? 'text-white' : 'text-blue-500 group-hover:scale-125 transition-transform') : 'grayscale opacity-50'}`}>{item.icon}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap overflow-hidden flex-1 text-left">
                       {label}
                     </span>
                     {!accessible && (
-                      <Lock size={12} className="opacity-40" />
+                      <Lock size={12} className="opacity-40 text-slate-300" />
                     )}
                   </button>
                 );

@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext.tsx';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import api from '../apiClient';
 
 const PatientPortal: React.FC = () => {
    const { t } = useLanguage();
    const { showToast } = useToast();
+   const { user } = useAuth();
    const [loading, setLoading] = useState(true);
    const [booking, setBooking] = useState(false);
    const [refilling, setRefilling] = useState(false);
@@ -66,24 +68,28 @@ const PatientPortal: React.FC = () => {
    return (
       <div className="max-w-[1200px] mx-auto animate-in fade-in duration-500 space-y-10">
          {/* Hero */}
-         <div className="bg-medical-gradient p-12 rounded-[4rem] text-white relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/20 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4" />
-            <div className="relative z-10 space-y-4">
-               <h2 className="text-4xl font-black tracking-tight">Namaste, Patient</h2>
-               <p className="text-white/90 font-medium max-w-xl">Welcome to your health dashboard. Access your records, book new visits, and communicate with your care team in one place.</p>
-               <div className="flex gap-4 pt-2">
-                  <div className="bg-white/10 border border-white/10 px-5 py-3 rounded-2xl">
-                     <p className="text-[9px] font-black uppercase tracking-widest text-white/60">Health Score</p>
-                     <p className="text-2xl font-black text-white">87/100</p>
+         <div className="bg-medical-gradient p-16 rounded-[4rem] text-white relative overflow-hidden shadow-2xl border border-white/10 group">
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 group-hover:bg-white/30 transition-all duration-1000" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/30 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4" />
+            <div className="relative z-10 space-y-6">
+               <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-2xl">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Wellness Verified</span>
+               </div>
+               <h2 className="text-5xl font-black tracking-tighter leading-none">Namaste, <span className="text-sky-200">{user?.name?.split(' ')[0]}</span></h2>
+               <p className="text-white/80 font-medium max-w-xl text-lg selection:bg-white/30">Your personalized health sanctuary is active. Track recovery metrics, manage prescriptions, and consult your health specialists seamlessly.</p>
+               <div className="flex flex-wrap gap-6 pt-6">
+                  <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-[2.5rem] min-w-[140px] hover:bg-white/20 transition-all shadow-xl group/card">
+                     <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-2 group-hover/card:text-white/70">Health Index</p>
+                     <p className="text-4xl font-black text-white tracking-tighter">87%</p>
                   </div>
-                  <div className="bg-white/10 border border-white/10 px-5 py-3 rounded-2xl">
-                     <p className="text-[9px] font-black uppercase tracking-widest text-white/60">Next Appointment</p>
-                     <p className="text-2xl font-black text-white">Feb 22</p>
+                  <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-[2.5rem] min-w-[140px] hover:bg-white/20 transition-all shadow-xl group/card">
+                     <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-2 group-hover/card:text-white/70">Next Event</p>
+                     <p className="text-4xl font-black text-white tracking-tighter">Feb 22</p>
                   </div>
-                  <div className="bg-white/10 border border-white/10 px-5 py-3 rounded-2xl">
-                     <p className="text-[9px] font-black uppercase tracking-widest text-white/60">Active Meds</p>
-                     <p className="text-2xl font-black text-white">{prescriptions.filter(p => p.status === 'Active').length}</p>
+                  <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-[2.5rem] min-w-[140px] hover:bg-white/20 transition-all shadow-xl group/card">
+                     <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-2 group-hover/card:text-white/70">Active Rx</p>
+                     <p className="text-4xl font-black text-white tracking-tighter">{prescriptions.filter(p => p.status === 'Active').length}</p>
                   </div>
                </div>
             </div>
@@ -95,7 +101,7 @@ const PatientPortal: React.FC = () => {
                <div className="w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center text-3xl mb-6">📅</div>
                <h3 className="text-xl font-black text-slate-900 mb-2">Book Appointment</h3>
                <p className="text-xs text-slate-500 font-medium mb-6">Schedule your next visit with your preferred specialist.</p>
-               <button onClick={handleBookAppointment} disabled={booking} className="w-full py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-primary/90 disabled:opacity-50 active:scale-95">
+               <button onClick={handleBookAppointment} disabled={booking} className="w-full py-4 bg-vibrant-blue text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-lg shadow-blue-500/20 disabled:opacity-50 active:scale-95">
                   {booking ? 'Scheduling...' : 'Start Booking'}
                </button>
             </div>
@@ -103,13 +109,13 @@ const PatientPortal: React.FC = () => {
                <div className="w-14 h-14 bg-success/5 rounded-2xl flex items-center justify-center text-3xl mb-6">📄</div>
                <h3 className="text-xl font-black text-slate-900 mb-2">View Reports</h3>
                <p className="text-xs text-slate-500 font-medium mb-6">Download and view your latest lab results and imaging.</p>
-               <button onClick={handleDownloadReports} className="w-full py-3 bg-success text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-success/90 active:scale-95">Access Vault</button>
+               <button onClick={handleDownloadReports} className="w-full py-4 bg-vibrant-green text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-lg shadow-green-500/20 active:scale-95">Access Vault</button>
             </div>
             <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
                <div className="w-14 h-14 bg-warning/5 rounded-2xl flex items-center justify-center text-3xl mb-6">💊</div>
                <h3 className="text-xl font-black text-slate-900 mb-2">Prescriptions</h3>
                <p className="text-xs text-slate-500 font-medium mb-6">Renew or check dosage for your active medications.</p>
-               <button onClick={() => showToast('info', 'Opening prescription manager...')} className="w-full py-3 bg-warning text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-warning/90 active:scale-95">Refill Meds</button>
+               <button onClick={() => showToast('info', 'Opening prescription manager...')} className="w-full py-4 bg-vibrant-orange text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-lg shadow-orange-500/20 active:scale-95">Refill Meds</button>
             </div>
          </div>
 

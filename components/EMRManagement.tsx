@@ -97,14 +97,15 @@ const EMRManagement: React.FC = () => {
                     { label: 'Digitization', value: `${digitizationPct}%`, color: 'text-success', icon: <Save size={20} />, bg: 'bg-success/10', border: 'border-success/20' },
                     { label: 'Critical Patients', value: records.filter(r => r.status === 'Critical').length.toString().padStart(2, '0'), color: 'text-danger', icon: <Siren size={20} />, bg: 'bg-danger/10', border: 'border-danger/20' },
                 ].map(s => (
-                    <div key={s.label} className={`bg-hospital-card p-6 rounded-2xl border ${s.border} shadow-card hover:shadow-card-hover transition-all group`}>
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.bg} ${s.color} group-hover:scale-110 transition-transform`}>
+                    <div key={s.label} className={`bg-white p-6 rounded-[2rem] border ${s.border} shadow-xl hover:shadow-2xl transition-all group relative overflow-hidden`}>
+                        <div className={`absolute top-0 left-0 right-0 h-1 ${s.bg}`} />
+                        <div className="flex items-center gap-4 mb-4 relative z-10">
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${s.bg} ${s.color}`}>
                                 {s.icon}
                             </div>
-                            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{s.label}</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{s.label}</p>
                         </div>
-                        <p className={`text-2xl font-black ${s.color} tracking-tighter`}>{s.value}</p>
+                        <p className={`text-3xl font-black ${s.color} tracking-tighter relative z-10`}>{s.value}</p>
                     </div>
                 ))}
             </div>
