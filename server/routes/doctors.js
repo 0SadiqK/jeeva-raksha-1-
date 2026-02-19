@@ -192,13 +192,15 @@ router.patch('/:id',
             const fields = { ...req.body };
 
             // Handle department assignment by name
-            if (fields.department && !fields.department_id) {
-                const dept = await pool.query(
-                    'SELECT id FROM departments WHERE name ILIKE $1 OR code ILIKE $1',
-                    [fields.department]
-                );
-                if (dept.rows.length > 0) {
-                    fields.department_id = dept.rows[0].id;
+            if (fields.department) {
+                if (!fields.department_id) {
+                    const dept = await pool.query(
+                        'SELECT id FROM departments WHERE name ILIKE $1 OR code ILIKE $1',
+                        [fields.department]
+                    );
+                    if (dept.rows.length > 0) {
+                        fields.department_id = dept.rows[0].id;
+                    }
                 }
                 delete fields.department;
             }

@@ -7,8 +7,14 @@ import { pool, withTransaction } from '../db.js';
 import { authorize } from '../middleware/authMiddleware.js';
 import { validateRequired } from '../middleware/validate.js';
 import { logAudit, getClientIP } from '../middleware/auditMiddleware.js';
+import fs from 'fs';
 
 const router = Router();
+
+const logToFile = (msg) => {
+    const entry = `[${new Date().toISOString()}] ${msg}\n`;
+    fs.appendFileSync('server/debug.log', entry);
+};
 
 // ─── GET /api/patients — list + search (excludes deleted) ────
 router.get('/', async (req, res) => {
@@ -130,6 +136,7 @@ router.post('/',
     async (req, res) => {
         try {
             const result = await withTransaction(async (client) => {
+                logToFile(`[patients] Starting registration transaction for: ${req.body.name}`);
                 const {
                     name, date_of_birth, gender, blood_group, phone, email,
                     address, city, state, pincode,
@@ -159,6 +166,7 @@ router.post('/',
                 const uhid = `UHID-${new Date().getFullYear()}-${String(nextId).padStart(4, '0')}`;
 
                 // ── Insert ──
+                logToFile('[patients] Inserting patient record...');
                 const insertResult = await client.query(
                     `INSERT INTO patients (
                         uhid, name, date_of_birth, gender, blood_group, phone, email,
@@ -176,6 +184,7 @@ router.post('/',
                         insurance_provider || null, insurance_policy_no || null,
                     ]
                 );
+                logToFile(`[patients] Insert successful, ID: ${insertResult.rows[0].id}`);
 
                 // ── Audit log ──
                 await logAudit({
