@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 const BASE = 'http://localhost:5000/api';
 
 async function run() {
@@ -9,8 +7,14 @@ async function run() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: 'admin@jeevaraksha.in', password: 'admin123' })
     });
+
+    // Check if login failed
+    if (!loginRes.ok) {
+        const errText = await loginRes.text();
+        throw new Error(`Login failed: ${loginRes.status} ${errText}`);
+    }
+
     const loginData = await loginRes.json();
-    if (!loginRes.ok) throw new Error('Login failed: ' + JSON.stringify(loginData));
     const token = loginData.token;
     console.log('   Token acquired.');
 
@@ -20,21 +24,26 @@ async function run() {
     });
     const docs = await docsRes.json();
     if (docs.length === 0) {
-        console.log('   No doctors found. Creating one...');
-        // Skipping creation for brevity, assuming seed data or previous steps worked. 
-        // If empty, this test might be inconclusive but won't crash.
+        console.log('   No doctors found. Cannot test update.');
         return;
     }
     const doc = docs[0];
     console.log(`   Fetched Doctor: ${doc.name} (ID: ${doc.id})`);
-    console.log(`   Has 'department' field? ${'department' in doc}`);
-    console.log(`   Has 'department_id' field? ${'department_id' in doc}`);
+
+    // Check for 'department' field
+    if ('department' in doc) {
+        console.log(`   Has 'department' field: "${doc.department}"`);
+    } else {
+        console.log('   Does NOT have 'department' field.');
+    }
+
+    if ('department_id' in doc) {
+        console.log(`   Has 'department_id' field: "${doc.department_id}"`);
+    }
 
     console.log('3. Attempting PATCH with raw object (mimicking frontend)...');
-    // The frontend sends the whole object including 'department' (name) and 'department_id'.
-    // We expect this to fail if the backend doesn't strip 'department'.
 
-    // Modifying name slightly to ensure it's an update
+    // We send payload with BOTH department and department_id if they exist
     const updatePayload = { ...doc, name: doc.name + ' (Updated)' };
 
     const updateRes = await fetch(`${BASE}/doctors/${doc.id}`, {
