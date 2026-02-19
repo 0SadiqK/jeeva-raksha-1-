@@ -12,22 +12,16 @@ async function applyMigration() {
         const migrationPath = path.join(__dirname, 'migration_auth.sql');
         const sql = fs.readFileSync(migrationPath, 'utf8');
 
-        // Split SQL by semicolons, but be careful with DO blocks
-        // For simplicity, we can run the whole block if pg supports it
-        // Or we can just use the pool to query the whole string.
-
+        console.log('📜 Executing SQL migration...');
+        // Execute the entire script as one query
         await pool.query(sql);
         console.log('✅ Auth migration applied successfully!');
 
-        // Now run the seed script to ensure passwords are set
-        console.log('🌱 Running password seeding...');
-        // We'll just trigger the seed function logic here or run it via dynamic import
-        const seedModule = await import('./seed-passwords.js');
-        // seed-passwords.js runs automatically on import if it calls itself, 
-        // but it might have pool.end() which we need to be careful with.
-
     } catch (err) {
-        console.error('❌ Migration failed:', err.message);
+        console.error('❌ Migration failed!');
+        console.error('Error Message:', err.message);
+        if (err.detail) console.error('Detail:', err.detail);
+        if (err.where) console.error('Where:', err.where);
         process.exit(1);
     } finally {
         await pool.end();
