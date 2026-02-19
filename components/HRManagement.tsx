@@ -3,6 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import {
+    Users, Calendar, CheckCircle2, AlertCircle, Clock,
+    UserPlus, Plus, Stethoscope, Briefcase, UserCog,
+    Edit2, Trash2, Plane, ClipboardList, Building2,
+    Activity, ArrowRight, Mail, Phone, Loader2
+} from 'lucide-react';
 
 const HRManagement: React.FC = () => {
     const { showToast } = useToast();
@@ -36,8 +42,8 @@ const HRManagement: React.FC = () => {
     const handleAddDoctor = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (newDoc.id) {
-                await api.updateDoctor(newDoc.id, newDoc);
+            if ((newDoc as any).id) {
+                await api.updateDoctor((newDoc as any).id, newDoc);
                 showToast('success', 'Staff member updated successfully');
             } else {
                 await api.createDoctor(newDoc);
@@ -98,54 +104,67 @@ const HRManagement: React.FC = () => {
 
     if (showAddForm) {
         return (
-            <div className="space-y-10 animate-in fade-in duration-500 max-w-2xl mx-auto py-10">
+            <div className="space-y-8 animate-in fade-in duration-500 max-w-2xl mx-auto py-6">
                 <div className="flex justify-between items-center">
                     <div>
-                        <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-                            {newDoc.id ? 'Edit Staff Member' : 'Add Staff Member'}
+                        <h2 className="text-2xl font-black text-text-main tracking-tight">
+                            {(newDoc as any).id ? 'Edit Staff Member' : 'Add Staff Member'}
                         </h2>
-                        <p className="text-sm font-medium text-slate-500">
-                            {newDoc.id ? 'Update staff details.' : 'Register a new doctor or specialist.'}
+                        <p className="text-sm font-medium text-text-muted">
+                            {(newDoc as any).id ? 'Update staff details.' : 'Register a new doctor or specialist.'}
                         </p>
                     </div>
-                    <button onClick={() => setShowAddForm(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">
+                    <button onClick={() => setShowAddForm(false)} className="px-5 py-2.5 bg-white border border-hospital-border text-text-body rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-hospital-bg transition-colors">
                         Cancel
                     </button>
                 </div>
 
-                <form onSubmit={handleAddDoctor} className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm space-y-6">
+                <form onSubmit={handleAddDoctor} className="bg-hospital-card p-8 rounded-2xl border border-hospital-border shadow-card space-y-6">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Full Name *</label>
-                        <input value={newDoc.name} onChange={e => setNewDoc({ ...newDoc, name: e.target.value })}
-                            className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" required />
+                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Full Name *</label>
+                        <div className="relative">
+                            <UserPlus size={16} className="absolute left-4 top-3.5 text-text-muted" />
+                            <input value={newDoc.name} onChange={e => setNewDoc({ ...newDoc, name: e.target.value })}
+                                className="w-full bg-hospital-input border border-hospital-border rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" required placeholder="Dr. Name or Staff Name" />
+                        </div>
                     </div>
                     <div className="grid grid-cols-2 gap-5">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Department *</label>
-                            <input value={newDoc.department} onChange={e => setNewDoc({ ...newDoc, department: e.target.value })}
-                                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" required />
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Department *</label>
+                            <div className="relative">
+                                <Building2 size={16} className="absolute left-4 top-3.5 text-text-muted" />
+                                <input value={newDoc.department} onChange={e => setNewDoc({ ...newDoc, department: e.target.value })}
+                                    className="w-full bg-hospital-input border border-hospital-border rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" required placeholder="Ex. Cardiology" />
+                            </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Specialization</label>
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Specialization</label>
                             <input value={newDoc.specialization} onChange={e => setNewDoc({ ...newDoc, specialization: e.target.value })}
-                                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+                                className="w-full bg-hospital-input border border-hospital-border rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" placeholder="Ex. Surgeon" />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-5">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Email</label>
-                            <input type="email" value={newDoc.email} onChange={e => setNewDoc({ ...newDoc, email: e.target.value })}
-                                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Email</label>
+                            <div className="relative">
+                                <Mail size={16} className="absolute left-4 top-3.5 text-text-muted" />
+                                <input type="email" value={newDoc.email} onChange={e => setNewDoc({ ...newDoc, email: e.target.value })}
+                                    className="w-full bg-hospital-input border border-hospital-border rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" placeholder="staff@hospital.com" />
+                            </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Phone</label>
-                            <input value={newDoc.phone} onChange={e => setNewDoc({ ...newDoc, phone: e.target.value })}
-                                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest px-1">Phone</label>
+                            <div className="relative">
+                                <Phone size={16} className="absolute left-4 top-3.5 text-text-muted" />
+                                <input value={newDoc.phone} onChange={e => setNewDoc({ ...newDoc, phone: e.target.value })}
+                                    className="w-full bg-hospital-input border border-hospital-border rounded-xl pl-10 pr-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" placeholder="Contact Number" />
+                            </div>
                         </div>
                     </div>
                     <button type="submit"
-                        className="w-full bg-primary text-white font-black py-4 rounded-2xl mt-4 hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all active:scale-[0.98]">
-                        {newDoc.id ? '✓ Update Member' : '✓ Register Member'}
+                        className="w-full bg-primary text-white font-bold py-3.5 rounded-xl mt-4 hover:bg-teal-800 shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                        <CheckCircle2 size={18} />
+                        {(newDoc as any).id ? 'Update Member' : 'Register Member'}
                     </button>
                 </form>
             </div>
@@ -153,16 +172,24 @@ const HRManagement: React.FC = () => {
     }
 
     return (
-        <div className="max-w-[1600px] mx-auto animate-in fade-in duration-500 space-y-8">
+        <div className="max-w-[1600px] mx-auto animate-in fade-in duration-500 space-y-8 p-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">HR & Workforce</h2>
-                    <p className="text-sm font-medium text-slate-500 font-kannada">"ತಂಡದ ಬಲ — ಸೇವೆಯ ಬಲ" — Team strength is service strength.</p>
+                    <h2 className="text-2xl font-black text-text-main tracking-tight">HR & Workforce</h2>
+                    <p className="text-sm font-bold text-text-muted mt-1 font-kannada flex items-center gap-2">
+                        <span>"ತಂಡದ ಬಲ — ಸೇವೆಯ ಬಲ"</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300" />
+                        <span>Team strength is service strength.</span>
+                    </p>
                 </div>
                 <div className="flex gap-3">
-                    <button onClick={() => showToast('info', 'Shift planner opening...')} className="px-5 py-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 shadow-sm transition-all">📅 Shift Planner</button>
+                    <button onClick={() => showToast('info', 'Shift planner opening...')} className="px-5 py-2.5 bg-white border border-hospital-border rounded-xl text-[10px] font-black uppercase tracking-widest text-text-muted hover:bg-hospital-bg hover:text-text-main hover:border-text-muted/20 shadow-sm transition-all flex items-center gap-2">
+                        <Calendar size={14} /> Shift Planner
+                    </button>
                     {isAdmin && (
-                        <button onClick={() => setShowAddForm(true)} className="px-6 py-3 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all">+ Add Staff</button>
+                        <button onClick={() => setShowAddForm(true)} className="px-5 py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:bg-teal-800 transition-all flex items-center gap-2">
+                            <Plus size={14} /> Add Staff
+                        </button>
                     )}
                 </div>
             </div>
@@ -170,50 +197,73 @@ const HRManagement: React.FC = () => {
             {/* KPIs */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'Total Staff', value: staff.length.toString(), color: 'text-slate-900', icon: '👥' },
-                    { label: 'On Duty', value: onDuty.toString().padStart(2, '0'), color: 'text-success', icon: '✅' },
-                    { label: 'On Leave', value: onLeave.toString().padStart(2, '0'), color: 'text-warning', icon: '🏖️' },
-                    { label: 'Pending Leaves', value: pendingLeaves.toString().padStart(2, '0'), color: 'text-primary', icon: '📋' },
+                    { label: 'Total Staff', value: staff.length.toString(), color: 'text-text-main', icon: <Users size={24} className="text-primary" />, bg: 'bg-primary/5' },
+                    { label: 'On Duty', value: onDuty.toString().padStart(2, '0'), color: 'text-success', icon: <CheckCircle2 size={24} className="text-success" />, bg: 'bg-success/5' },
+                    { label: 'On Leave', value: onLeave.toString().padStart(2, '0'), color: 'text-warning', icon: <Plane size={24} className="text-warning" />, bg: 'bg-warning/5' },
+                    { label: 'Pending Leaves', value: pendingLeaves.toString().padStart(2, '0'), color: 'text-primary', icon: <ClipboardList size={24} className="text-primary" />, bg: 'bg-primary/5' },
                 ].map(s => (
-                    <div key={s.label} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-                        <div className="flex items-center gap-3 mb-3">
-                            <span className="text-xl">{s.icon}</span>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
+                    <div key={s.label} className="bg-hospital-card p-6 rounded-2xl border border-hospital-border shadow-card hover:shadow-card-hover transition-all group">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform ${s.bg}`}>
+                                {s.icon}
+                            </div>
                         </div>
+                        <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">{s.label}</p>
                         <p className={`text-3xl font-black ${s.color} tracking-tighter`}>{s.value}</p>
                     </div>
                 ))}
             </div>
 
             {/* Tabs */}
-            <div className="flex bg-hospital-bg p-1.5 rounded-2xl border border-slate-100 w-fit">
+            <div className="flex bg-hospital-card p-1.5 rounded-xl border border-hospital-border w-fit shadow-sm">
                 {([['ROSTER', 'Staff Roster'], ['LEAVES', 'Leave Requests'], ['ATTENDANCE', 'Attendance']] as const).map(([key, label]) => (
-                    <button key={key} onClick={() => setActiveTab(key as any)} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === key ? 'bg-white text-primary shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}>{label}</button>
+                    <button key={key} onClick={() => setActiveTab(key as any)} className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === key ? 'bg-primary/10 text-primary shadow-sm' : 'text-text-muted hover:text-text-body hover:bg-hospital-bg'}`}>{label}</button>
                 ))}
             </div>
 
             {activeTab === 'ROSTER' && (
-                <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-slate-50 bg-slate-50/50">
-                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Staff Roster — {staff.length} Members</h3>
+                <div className="bg-hospital-card rounded-2xl border border-hospital-border shadow-card overflow-hidden">
+                    <div className="p-6 border-b border-hospital-border bg-hospital-bg/50 flex justify-between items-center">
+                        <h3 className="text-[10px] font-black text-text-muted uppercase tracking-widest flex items-center gap-2">
+                            <Users size={14} /> Staff Roster — {staff.length} Members
+                        </h3>
                     </div>
-                    <div className="divide-y divide-slate-50">
+                    <div className="divide-y divide-hospital-border">
                         {loading ? (
-                            <div className="p-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Loading rosters...</div>
+                            <div className="p-20 text-center flex flex-col items-center gap-3">
+                                <Loader2 size={32} className="animate-spin text-primary/30" />
+                                <p className="text-xs font-bold text-text-muted uppercase tracking-widest">Loading rosters...</p>
+                            </div>
                         ) : staff.map(s => (
-                            <div key={s.id} className="px-8 py-5 flex items-center gap-6 hover:bg-hospital-bg/50 transition-colors">
-                                <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center text-lg shrink-0">
-                                    {(s.role || '').includes('Dr') || (s.employee_id || '').startsWith('DOC') || s.specialization ? '🩺' : '🧑‍💼'}
+                            <div key={s.id} className="px-8 py-5 flex items-center gap-6 hover:bg-hospital-bg/50 transition-colors group">
+                                <div className="w-10 h-10 bg-primary/5 border border-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0 group-hover:bg-primary group-hover:text-white transition-colors">
+                                    {(s.role || '').includes('Dr') || (s.employee_id || '').startsWith('DOC') || s.specialization ? <Stethoscope size={20} /> : <Briefcase size={20} />}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-black text-slate-800">{s.name}</p>
-                                    <p className="text-[10px] font-bold text-slate-400">{s.role || 'Specialist'} • {s.department || s.dept} {s.specialization ? `• ${s.specialization}` : ''}</p>
+                                    <p className="text-sm font-black text-text-main">{s.name}</p>
+                                    <p className="text-[10px] font-bold text-text-muted flex items-center gap-1.5 mt-0.5">
+                                        <span>{s.role || 'Specialist'}</span>
+                                        <span className="w-0.5 h-0.5 rounded-full bg-slate-300" />
+                                        <span>{s.department || s.dept}</span>
+                                        {s.specialization && (
+                                            <>
+                                                <span className="w-0.5 h-0.5 rounded-full bg-slate-300" />
+                                                <span>{s.specialization}</span>
+                                            </>
+                                        )}
+                                    </p>
                                 </div>
-                                <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shrink-0 ${s.status === 'active' || !s.status ? 'bg-success/10 text-success' : 'bg-slate-100 text-slate-400'}`}>{s.status || 'active'}</span>
+                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0 border ${s.status === 'active' || !s.status ? 'bg-success/5 text-success border-success/10' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
+                                    {s.status || 'active'}
+                                </span>
                                 {isAdmin && (
-                                    <div className="flex gap-2">
-                                        <button onClick={() => handleEditDoctor(s)} className="p-2 text-slate-300 hover:text-primary hover:bg-primary/5 rounded-lg transition-all text-xs">✎</button>
-                                        <button onClick={() => handleDeleteDoctor(s.id, s.name)} className="p-2 text-slate-300 hover:text-danger hover:bg-danger/5 rounded-lg transition-all text-xs">🗑️</button>
+                                    <div className="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={() => handleEditDoctor(s)} className="p-2 text-text-muted hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Edit">
+                                            <Edit2 size={16} />
+                                        </button>
+                                        <button onClick={() => handleDeleteDoctor(s.id, s.name)} className="p-2 text-text-muted hover:text-danger hover:bg-danger/5 rounded-lg transition-all" title="Delete">
+                                            <Trash2 size={16} />
+                                        </button>
                                     </div>
                                 )}
                             </div>
@@ -223,21 +273,34 @@ const HRManagement: React.FC = () => {
             )}
 
             {activeTab === 'LEAVES' && (
-                <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-slate-50 bg-slate-50/50">
-                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Leave Requests</h3>
+                <div className="bg-hospital-card rounded-2xl border border-hospital-border shadow-card overflow-hidden">
+                    <div className="p-6 border-b border-hospital-border bg-hospital-bg/50">
+                        <h3 className="text-[10px] font-black text-text-muted uppercase tracking-widest flex items-center gap-2">
+                            <Plane size={14} /> Leave Requests
+                        </h3>
                     </div>
-                    <div className="divide-y divide-slate-50">
+                    <div className="divide-y divide-hospital-border">
                         {leaves.map(l => (
                             <div key={l.id} className="px-8 py-5 flex items-center gap-6 hover:bg-hospital-bg/50 transition-colors">
-                                <div className="w-10 h-10 bg-warning/5 rounded-xl flex items-center justify-center text-lg shrink-0">📋</div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-black text-slate-800">{l.staff}</p>
-                                    <p className="text-[10px] font-bold text-slate-400">{l.type} • {l.from} to {l.to} ({l.days} day{l.days > 1 ? 's' : ''}) • {l.reason}</p>
+                                <div className="w-10 h-10 bg-warning/5 border border-warning/10 rounded-xl flex items-center justify-center text-warning shrink-0">
+                                    <ClipboardList size={20} />
                                 </div>
-                                <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shrink-0 ${l.status === 'Approved' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>{l.status}</span>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-black text-text-main">{l.staff}</p>
+                                    <p className="text-[10px] font-bold text-text-muted flex items-center gap-1.5 mt-0.5">
+                                        <span className="text-text-body">{l.type}</span>
+                                        <span className="w-0.5 h-0.5 rounded-full bg-slate-300" />
+                                        <span>{l.from} to {l.to}</span>
+                                        <span className="bg-slate-100 px-1.5 rounded text-slate-500">{l.days} day{l.days > 1 ? 's' : ''}</span>
+                                    </p>
+                                    <p className="text-[10px] text-text-muted italic mt-1">Reason: {l.reason}</p>
+                                </div>
+                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0 border ${l.status === 'Approved' ? 'bg-success/5 text-success border-success/10' : 'bg-warning/5 text-warning border-warning/10'}`}>
+                                    {l.status}
+                                </span>
                                 {l.status === 'Pending' && isAdmin && (
-                                    <button onClick={() => handleApproveLeave(l.id)} disabled={approving === l.id} className="px-5 py-2 bg-success text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-green-700 transition-all disabled:opacity-50 shrink-0">
+                                    <button onClick={() => handleApproveLeave(l.id)} disabled={approving === l.id} className="px-4 py-2 bg-success text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-green-700 transition-all disabled:opacity-50 shrink-0 flex items-center gap-2">
+                                        {approving === l.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
                                         {approving === l.id ? 'Approving...' : 'Approve'}
                                     </button>
                                 )}
@@ -248,34 +311,38 @@ const HRManagement: React.FC = () => {
             )}
 
             {activeTab === 'ATTENDANCE' && (
-                <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-slate-50 bg-slate-50/50">
-                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Department-wise Attendance — Today</h3>
+                <div className="bg-hospital-card rounded-2xl border border-hospital-border shadow-card overflow-hidden">
+                    <div className="p-6 border-b border-hospital-border bg-hospital-bg/50">
+                        <h3 className="text-[10px] font-black text-text-muted uppercase tracking-widest flex items-center gap-2">
+                            <Activity size={14} /> Department-wise Attendance — Today
+                        </h3>
                     </div>
-                    <div className="divide-y divide-slate-50">
+                    <div className="divide-y divide-hospital-border">
                         {attendance.map(a => (
                             <div key={a.dept} className="px-8 py-5 flex items-center gap-6 hover:bg-hospital-bg/50 transition-colors">
-                                <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center text-lg shrink-0">🏥</div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-black text-slate-800">{a.dept}</p>
-                                    <p className="text-[10px] font-bold text-slate-400">Total: {a.total} staff members</p>
+                                <div className="w-10 h-10 bg-primary/5 border border-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0">
+                                    <Building2 size={20} />
                                 </div>
-                                <div className="flex gap-4 shrink-0">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-black text-text-main">{a.dept}</p>
+                                    <p className="text-[10px] font-bold text-text-muted mt-0.5">Total: <span className="text-text-body">{a.total}</span> staff members</p>
+                                </div>
+                                <div className="flex gap-6 shrink-0 mr-4">
                                     <div className="text-center">
                                         <p className="text-sm font-black text-success">{a.present}</p>
-                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Present</p>
+                                        <p className="text-[8px] font-black text-text-muted uppercase tracking-widest opacity-60">Present</p>
                                     </div>
                                     <div className="text-center">
                                         <p className="text-sm font-black text-warning">{a.leaves}</p>
-                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Leave</p>
+                                        <p className="text-[8px] font-black text-text-muted uppercase tracking-widest opacity-60">Leave</p>
                                     </div>
                                     <div className="text-center">
                                         <p className="text-sm font-black text-danger">{a.absent}</p>
-                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Absent</p>
+                                        <p className="text-[8px] font-black text-text-muted uppercase tracking-widest opacity-60">Absent</p>
                                     </div>
                                 </div>
-                                <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden shrink-0">
-                                    <div className="h-full bg-success rounded-full" style={{ width: `${(a.present / a.total) * 100}%` }} />
+                                <div className="w-24 h-1.5 bg-hospital-bg rounded-full overflow-hidden shrink-0 border border-hospital-border/50">
+                                    <div className="h-full bg-success rounded-full transition-all duration-1000" style={{ width: `${(a.present / a.total) * 100}%` }} />
                                 </div>
                             </div>
                         ))}
