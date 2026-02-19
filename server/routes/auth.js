@@ -217,9 +217,9 @@ router.get('/me', async (req, res) => {
 
         // Fetch fresh user data
         const result = await pool.query(
-            `SELECT u.*, r.role_name as role, u.department as department_name
+            `SELECT u.*, u.role, d.name as department_name
              FROM users u
-             LEFT JOIN roles r ON u.role_id = r.id
+             LEFT JOIN departments d ON u.department_id = d.id
              WHERE u.id = $1 AND u.status != 'deleted'`,
             [decoded.id]
         );
