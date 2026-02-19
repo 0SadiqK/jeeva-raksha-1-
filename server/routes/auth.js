@@ -180,7 +180,7 @@ router.post('/demo', async (req, res) => {
                  FROM users u
                  LEFT JOIN departments d ON u.department_id = d.id
                  WHERE u.status = 'active'
-                 ORDER BY u.role = 'admin' DESC NULLS LAST, u.created_at ASC LIMIT 1`
+                 ORDER BY u.role ASC, u.created_at ASC LIMIT 1`
             );
 
         if (result.rows.length === 0) {
