@@ -4,6 +4,7 @@
 -- ============================================================
 
 -- 1. Add auth columns to users table
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS login_attempts INTEGER DEFAULT 0;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ;
