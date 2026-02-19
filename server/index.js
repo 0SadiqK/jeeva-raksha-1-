@@ -81,10 +81,14 @@ app.use((err, _req, res, _next) => {
 });
 
 // ─── Start ──────────────────────────────────────────────────
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`\n🏥 Jeeva Raksha API Server v2.1 (with Auth)`);
     console.log(`   Running on:  http://localhost:${PORT}`);
     console.log(`   Auth:        http://localhost:${PORT}/api/auth/login`);
     console.log(`   Health:      http://localhost:${PORT}/api/health`);
     console.log(`   Environment: ${process.env.NODE_ENV || 'development'}\n`);
 });
+
+// Keep-alive interval to prevent premature exit in certain environments
+setInterval(() => { }, 60000);
+
