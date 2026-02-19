@@ -1,22 +1,61 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
+import api from '../api';
+import { useAuth } from '../context/AuthContext';
 
 const HRManagement: React.FC = () => {
     const { showToast } = useToast();
+    const { user, canPerformAction } = useAuth();
+    const isAdmin = canPerformAction('HR', 'ADMIN');
     const [activeTab, setActiveTab] = useState<'ROSTER' | 'LEAVES' | 'ATTENDANCE'>('ROSTER');
     const [approving, setApproving] = useState<string | null>(null);
+    const [staff, setStaff] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [newDoc, setNewDoc] = useState({
+        name: '', role: 'Doctor', department: '', email: '', phone: '', specialization: '', employee_id: ''
+    });
 
-    const staff = [
-        { id: 'DOC001', name: 'Dr. Ramesh Sharma', role: 'Senior Surgeon', dept: 'Surgery', shift: 'Day', status: 'On Duty', phone: '+91 98765 00001' },
-        { id: 'DOC002', name: 'Dr. Priya Das', role: 'Physician', dept: 'Internal Medicine', shift: 'Day', status: 'On Duty', phone: '+91 98765 00002' },
-        { id: 'NUR001', name: 'Nurse Kavitha R.', role: 'Head Nurse', dept: 'ICU', shift: 'Night', status: 'Off Duty', phone: '+91 98765 00003' },
-        { id: 'NUR002', name: 'Nurse Deepa M.', role: 'Staff Nurse', dept: 'General Ward', shift: 'Day', status: 'On Duty', phone: '+91 98765 00004' },
-        { id: 'DOC003', name: 'Dr. Anand Verma', role: 'Anesthetist', dept: 'OT', shift: 'Day', status: 'In Surgery', phone: '+91 98765 00005' },
-        { id: 'TEC001', name: 'Ravi Kumar', role: 'Lab Technician', dept: 'Pathology', shift: 'Day', status: 'On Duty', phone: '+91 98765 00006' },
-        { id: 'DOC004', name: 'Dr. Sunita Rao', role: 'Radiologist', dept: 'Radiology', shift: 'Day', status: 'On Leave', phone: '+91 98765 00007' },
-        { id: 'ADM001', name: 'Ganesh P.', role: 'Admin Officer', dept: 'Admin', shift: 'Day', status: 'On Duty', phone: '+91 98765 00008' },
-    ];
+    const fetchStaff = async () => {
+        try {
+            setLoading(true);
+            const doctors = await api.getDoctors();
+            setStaff(doctors);
+        } catch (err: any) {
+            showToast('error', `Failed to load staff: ${err.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchStaff();
+    }, []);
+
+    const handleAddDoctor = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await api.createDoctor(newDoc);
+            showToast('success', 'Staff member added successfully');
+            setShowAddForm(false);
+            setNewDoc({ name: '', role: 'Doctor', department: '', email: '', phone: '', specialization: '', employee_id: '' });
+            fetchStaff();
+        } catch (err: any) {
+            showToast('error', err.message);
+        }
+    };
+
+    const handleDeleteDoctor = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to remove ${name}?`)) return;
+        try {
+            await api.deleteDoctor(id);
+            showToast('success', 'Staff member removed');
+            fetchStaff();
+        } catch (err: any) {
+            showToast('error', err.message);
+        }
+    };
 
     const leaves = [
         { id: 'LV001', staff: 'Dr. Sunita Rao', type: 'Casual Leave', from: '2026-02-18', to: '2026-02-20', days: 3, status: 'Approved', reason: 'Personal' },
@@ -43,9 +82,61 @@ const HRManagement: React.FC = () => {
         setApproving(null);
     };
 
-    const onDuty = staff.filter(s => s.status === 'On Duty' || s.status === 'In Surgery').length;
-    const onLeave = staff.filter(s => s.status === 'On Leave').length;
+    const onDuty = staff.filter(s => s.status === 'active' || !s.status).length;
+    const onLeave = 0; // staff.filter(s => s.status === 'On Leave').length;
     const pendingLeaves = leaves.filter(l => l.status === 'Pending').length;
+
+    if (showAddForm) {
+        return (
+            <div className="space-y-10 animate-in fade-in duration-500 max-w-2xl mx-auto py-10">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Add Staff Member</h2>
+                        <p className="text-sm font-medium text-slate-500">Register a new doctor or specialist.</p>
+                    </div>
+                    <button onClick={() => setShowAddForm(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">
+                        Cancel
+                    </button>
+                </div>
+
+                <form onSubmit={handleAddDoctor} className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm space-y-6">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Full Name *</label>
+                        <input value={newDoc.name} onChange={e => setNewDoc({ ...newDoc, name: e.target.value })}
+                            className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" required />
+                    </div>
+                    <div className="grid grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Department *</label>
+                            <input value={newDoc.department} onChange={e => setNewDoc({ ...newDoc, department: e.target.value })}
+                                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" required />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Specialization</label>
+                            <input value={newDoc.specialization} onChange={e => setNewDoc({ ...newDoc, specialization: e.target.value })}
+                                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Email</label>
+                            <input type="email" value={newDoc.email} onChange={e => setNewDoc({ ...newDoc, email: e.target.value })}
+                                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Phone</label>
+                            <input value={newDoc.phone} onChange={e => setNewDoc({ ...newDoc, phone: e.target.value })}
+                                className="w-full bg-hospital-bg border-none rounded-2xl px-4 py-3 text-sm font-bold focus:ring-1 focus:ring-primary/20 outline-none" />
+                        </div>
+                    </div>
+                    <button type="submit"
+                        className="w-full bg-primary text-white font-black py-4 rounded-2xl mt-4 hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all active:scale-[0.98]">
+                        ✓ Register Member
+                    </button>
+                </form>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-[1600px] mx-auto animate-in fade-in duration-500 space-y-8">
@@ -56,7 +147,9 @@ const HRManagement: React.FC = () => {
                 </div>
                 <div className="flex gap-3">
                     <button onClick={() => showToast('info', 'Shift planner opening...')} className="px-5 py-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 shadow-sm transition-all">📅 Shift Planner</button>
-                    <button onClick={() => showToast('info', 'New staff registration form opening...')} className="px-6 py-3 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all">+ Add Staff</button>
+                    {isAdmin && (
+                        <button onClick={() => setShowAddForm(true)} className="px-6 py-3 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all">+ Add Staff</button>
+                    )}
                 </div>
             </div>
 
@@ -91,16 +184,21 @@ const HRManagement: React.FC = () => {
                         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Staff Roster — {staff.length} Members</h3>
                     </div>
                     <div className="divide-y divide-slate-50">
-                        {staff.map(s => (
+                        {loading ? (
+                            <div className="p-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Loading rosters...</div>
+                        ) : staff.map(s => (
                             <div key={s.id} className="px-8 py-5 flex items-center gap-6 hover:bg-hospital-bg/50 transition-colors">
                                 <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center text-lg shrink-0">
-                                    {s.role.includes('Dr') || s.id.startsWith('DOC') ? '🩺' : s.id.startsWith('NUR') ? '👩‍⚕️' : '🧑‍💼'}
+                                    {(s.role || '').includes('Dr') || (s.employee_id || '').startsWith('DOC') || s.specialization ? '🩺' : '🧑‍💼'}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-black text-slate-800">{s.name}</p>
-                                    <p className="text-[10px] font-bold text-slate-400">{s.role} • {s.dept} • {s.shift} Shift</p>
+                                    <p className="text-[10px] font-bold text-slate-400">{s.role || 'Specialist'} • {s.department || s.dept} {s.specialization ? `• ${s.specialization}` : ''}</p>
                                 </div>
-                                <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shrink-0 ${s.status === 'On Duty' ? 'bg-success/10 text-success' : s.status === 'In Surgery' ? 'bg-primary/10 text-primary' : s.status === 'On Leave' ? 'bg-warning/10 text-warning' : 'bg-slate-100 text-slate-400'}`}>{s.status}</span>
+                                <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shrink-0 ${s.status === 'active' || !s.status ? 'bg-success/10 text-success' : 'bg-slate-100 text-slate-400'}`}>{s.status || 'active'}</span>
+                                {isAdmin && (
+                                    <button onClick={() => handleDeleteDoctor(s.id, s.name)} className="p-2 text-slate-300 hover:text-danger hover:bg-danger/5 rounded-lg transition-all text-xs">🗑️</button>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -121,7 +219,7 @@ const HRManagement: React.FC = () => {
                                     <p className="text-[10px] font-bold text-slate-400">{l.type} • {l.from} to {l.to} ({l.days} day{l.days > 1 ? 's' : ''}) • {l.reason}</p>
                                 </div>
                                 <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shrink-0 ${l.status === 'Approved' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>{l.status}</span>
-                                {l.status === 'Pending' && (
+                                {l.status === 'Pending' && isAdmin && (
                                     <button onClick={() => handleApproveLeave(l.id)} disabled={approving === l.id} className="px-5 py-2 bg-success text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-green-700 transition-all disabled:opacity-50 shrink-0">
                                         {approving === l.id ? 'Approving...' : 'Approve'}
                                     </button>

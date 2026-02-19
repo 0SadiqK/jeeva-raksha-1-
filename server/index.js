@@ -44,6 +44,7 @@ app.use((req, _res, next) => {
 });
 
 // ─── Routes ─────────────────────────────────────────────────
+app.use('/api/auth', authRouter); // Redundant here but safe
 app.use('/api/patients', patientsRouter);
 app.use('/api/doctors', doctorsRouter);
 app.use('/api/appointments', appointmentsRouter);
@@ -51,9 +52,9 @@ app.use('/api/visits', visitsRouter);
 app.use('/api/labs', labsRouter);
 app.use('/api/pharmacy', pharmacyRouter);
 app.use('/api/billing', billingRouter);
-app.use('/api', bedsRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/audit-logs', auditRouter);
+app.use('/api', bedsRouter);
 
 // ─── Health check (enhanced) ────────────────────────────────
 app.get('/api/health', async (_req, res) => {

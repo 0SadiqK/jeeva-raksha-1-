@@ -2,6 +2,7 @@
 // JWT-based authentication with backward-compatible header fallback.
 // ─────────────────────────────────────────────────────────────
 import jwt from 'jsonwebtoken';
+import fs from 'fs';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'jeevaraksha-secret-key-change-in-production';
 const VALID_ROLES = ['admin', 'doctor', 'nurse', 'pharmacist', 'lab_tech', 'receptionist', 'staff', 'patient', 'demo'];
@@ -43,6 +44,7 @@ export function authenticate(req, _res, next) {
         isDemo: userRole === 'demo',
     };
 
+    console.log(`[AUTH] User: ${req.user.id}, Role: ${req.user.role}, isDemo: ${req.user.isDemo}`);
     next();
 }
 
@@ -50,10 +52,18 @@ export function authenticate(req, _res, next) {
  * Restrict route to specific roles.
  */
 export function authorize(...allowedRoles) {
-    return (req, res, next) => {
+    return async (req, res, next) => {
         if (!req.user) {
             return res.status(401).json({ error: 'Authentication required' });
         }
+
+        const logMsg = `[${new Date().toISOString()}] ${req.method} ${req.url} - User: ${req.user.id}, Role: ${req.user.role}, Allowed: ${allowedRoles}\n`;
+        try {
+            fs.appendFileSync('auth_debug.log', logMsg);
+        } catch (e) {
+            // ignore logging errors
+        }
+
         if (!allowedRoles.includes(req.user.role)) {
             return res.status(403).json({
                 error: 'Forbidden',

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Patient } from '../types';
 import api from '../api';
+import { useAuth } from '../context/AuthContext';
 
 const Patients: React.FC = () => {
   const [selectedPatient, setSelectedPatient] = useState<any | null>(null);
@@ -15,6 +16,8 @@ const Patients: React.FC = () => {
     phone: '', email: '', address: '', city: '', state: '', pincode: ''
   });
   const [saving, setSaving] = useState(false);
+  const { user, canPerformAction } = useAuth();
+  const isAdmin = canPerformAction('PATIENTS', 'ADMIN');
 
   // Fetch patients from DB
   const fetchPatients = async (search?: string) => {
@@ -288,10 +291,12 @@ const Patients: React.FC = () => {
             />
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
           </div>
-          <button onClick={() => setShowRegisterForm(true)}
-            className="px-6 py-3 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all">
-            + Register
-          </button>
+          {isAdmin && (
+            <button onClick={() => setShowRegisterForm(true)}
+              className="px-6 py-3 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all">
+              + Register
+            </button>
+          )}
         </div>
       </div>
 
@@ -348,9 +353,24 @@ const Patients: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-10 py-8 text-right">
-                    <button className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-primary hover:border-primary/20 hover:shadow-lg transition-all">
-                      <span className="text-xl">➔</span>
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      {isAdmin && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm(`Are you sure you want to delete ${p.name}? This will be logged.`)) {
+                              api.deletePatient(p.id).then(() => fetchPatients());
+                            }
+                          }}
+                          className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-danger hover:border-danger/20 hover:shadow-lg transition-all"
+                        >
+                          <span className="text-xl">🗑️</span>
+                        </button>
+                      )}
+                      <button className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-primary hover:border-primary/20 hover:shadow-lg transition-all">
+                        <span className="text-xl">➔</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )) : (

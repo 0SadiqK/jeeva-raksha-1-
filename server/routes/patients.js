@@ -125,6 +125,7 @@ router.get('/:id', async (req, res) => {
 
 // ─── POST /api/patients — register new patient ──────────────
 router.post('/',
+    (req, res, next) => res.status(418).json({ message: 'Teapot test' }),
     authorize('admin'),
     validateRequired(['name', 'date_of_birth', 'gender']),
     async (req, res) => {
