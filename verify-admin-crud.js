@@ -2,7 +2,7 @@
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 async function testAdminCRUD() {
-    const BASE_URL = 'http://localhost:5000/api';
+    const BASE_URL = 'http://localhost:5005/api';
 
     console.log('--- Starting Admin CRUD Verification ---');
 
