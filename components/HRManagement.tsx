@@ -36,14 +36,24 @@ const HRManagement: React.FC = () => {
     const handleAddDoctor = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await api.createDoctor(newDoc);
-            showToast('success', 'Staff member added successfully');
+            if (newDoc.id) {
+                await api.updateDoctor(newDoc.id, newDoc);
+                showToast('success', 'Staff member updated successfully');
+            } else {
+                await api.createDoctor(newDoc);
+                showToast('success', 'Staff member added successfully');
+            }
             setShowAddForm(false);
             setNewDoc({ name: '', role: 'Doctor', department: '', email: '', phone: '', specialization: '', employee_id: '' });
             fetchStaff();
         } catch (err: any) {
             showToast('error', err.message);
         }
+    };
+
+    const handleEditDoctor = (doc: any) => {
+        setNewDoc({ ...doc });
+        setShowAddForm(true);
     };
 
     const handleDeleteDoctor = async (id: string, name: string) => {
@@ -91,8 +101,12 @@ const HRManagement: React.FC = () => {
             <div className="space-y-10 animate-in fade-in duration-500 max-w-2xl mx-auto py-10">
                 <div className="flex justify-between items-center">
                     <div>
-                        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Add Staff Member</h2>
-                        <p className="text-sm font-medium text-slate-500">Register a new doctor or specialist.</p>
+                        <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+                            {newDoc.id ? 'Edit Staff Member' : 'Add Staff Member'}
+                        </h2>
+                        <p className="text-sm font-medium text-slate-500">
+                            {newDoc.id ? 'Update staff details.' : 'Register a new doctor or specialist.'}
+                        </p>
                     </div>
                     <button onClick={() => setShowAddForm(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">
                         Cancel
@@ -131,7 +145,7 @@ const HRManagement: React.FC = () => {
                     </div>
                     <button type="submit"
                         className="w-full bg-primary text-white font-black py-4 rounded-2xl mt-4 hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all active:scale-[0.98]">
-                        ✓ Register Member
+                        {newDoc.id ? '✓ Update Member' : '✓ Register Member'}
                     </button>
                 </form>
             </div>
@@ -197,7 +211,10 @@ const HRManagement: React.FC = () => {
                                 </div>
                                 <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shrink-0 ${s.status === 'active' || !s.status ? 'bg-success/10 text-success' : 'bg-slate-100 text-slate-400'}`}>{s.status || 'active'}</span>
                                 {isAdmin && (
-                                    <button onClick={() => handleDeleteDoctor(s.id, s.name)} className="p-2 text-slate-300 hover:text-danger hover:bg-danger/5 rounded-lg transition-all text-xs">🗑️</button>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => handleEditDoctor(s)} className="p-2 text-slate-300 hover:text-primary hover:bg-primary/5 rounded-lg transition-all text-xs">✎</button>
+                                        <button onClick={() => handleDeleteDoctor(s.id, s.name)} className="p-2 text-slate-300 hover:text-danger hover:bg-danger/5 rounded-lg transition-all text-xs">🗑️</button>
+                                    </div>
                                 )}
                             </div>
                         ))}

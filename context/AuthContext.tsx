@@ -24,15 +24,34 @@ const ROLE_HIERARCHY: AccessLevel[] = ['VIEW', 'EDIT', 'ADMIN'];
 /** Map database roles to access levels */
 const ROLE_TO_ACCESS: Record<string, AccessLevel> = {
   admin: 'ADMIN',
+  administrator: 'ADMIN',
+  'super admin': 'ADMIN',
   doctor: 'EDIT',
+  surgeon: 'EDIT',
+  hod: 'EDIT',
   nurse: 'EDIT',
   pharmacist: 'EDIT',
   lab_tech: 'VIEW',
+  'lab technician': 'VIEW',
+  radiologist: 'VIEW',
   receptionist: 'VIEW',
   staff: 'VIEW',
   patient: 'VIEW',
   demo: 'VIEW',
 };
+
+function normalizeDBRole(role: string): string {
+  if (!role) return 'staff';
+  const r = role.toLowerCase();
+  if (r.includes('admin')) return 'admin';
+  if (r.includes('doctor') || r.includes('surgeon') || r.includes('hod')) return 'doctor';
+  if (r.includes('nurse')) return 'nurse';
+  if (r.includes('pharmacist')) return 'pharmacist';
+  if (r.includes('lab')) return 'lab_tech';
+  if (r.includes('radio')) return 'radiologist';
+  if (r.includes('receptionist')) return 'receptionist';
+  return r;
+}
 
 /** Per-module minimum access level required */
 const MODULE_PERMISSIONS: ModulePermissionMap = {
@@ -176,11 +195,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAuthUser(user);
     setToken(t);
     setIsDemo(demo);
-    setAccessLevel(ROLE_TO_ACCESS[user.role] || 'VIEW');
+    const normalizedRole = normalizeDBRole(user.role);
+    setAccessLevel(ROLE_TO_ACCESS[normalizedRole] || 'VIEW');
 
     // Also set legacy localStorage keys for api.ts compatibility
     localStorage.setItem('jrk_user_id', user.id);
-    localStorage.setItem('jrk_user_role', user.role);
+    localStorage.setItem('jrk_user_role', normalizedRole);
     localStorage.setItem('jrk_user_name', user.name);
   };
 

@@ -8,6 +8,22 @@ const JWT_SECRET = process.env.JWT_SECRET || 'jeevaraksha-secret-key-change-in-p
 const VALID_ROLES = ['admin', 'doctor', 'nurse', 'pharmacist', 'lab_tech', 'receptionist', 'staff', 'patient', 'demo'];
 
 /**
+ * Maps database role names to system roles for consistent authorization.
+ */
+function normalizeRole(dbRole) {
+    if (!dbRole) return 'staff';
+    const role = dbRole.toLowerCase();
+    if (role.includes('admin')) return 'admin';
+    if (role.includes('doctor') || role.includes('surgeon') || role.includes('hod')) return 'doctor';
+    if (role.includes('nurse')) return 'nurse';
+    if (role.includes('pharmacist')) return 'pharmacist';
+    if (role.includes('lab')) return 'lab_tech';
+    if (role.includes('radio')) return 'radiologist';
+    if (role.includes('receptionist')) return 'receptionist';
+    return 'staff';
+}
+
+/**
  * Authenticate requests.
  * Priority: JWT Bearer token > x-user-* headers > anonymous
  */
@@ -20,7 +36,7 @@ export function authenticate(req, _res, next) {
             const decoded = jwt.verify(token, JWT_SECRET);
             req.user = {
                 id: decoded.id,
-                role: decoded.role,
+                role: normalizeRole(decoded.role),
                 name: decoded.name,
                 email: decoded.email,
                 employee_id: decoded.employee_id,
@@ -39,12 +55,11 @@ export function authenticate(req, _res, next) {
 
     req.user = {
         id: userId,
-        role: VALID_ROLES.includes(userRole) ? userRole : 'staff',
+        role: normalizeRole(userRole),
         name: userName,
         isDemo: userRole === 'demo',
     };
 
-    console.log(`[AUTH] User: ${req.user.id}, Role: ${req.user.role}, isDemo: ${req.user.isDemo}`);
     next();
 }
 
@@ -55,13 +70,6 @@ export function authorize(...allowedRoles) {
     return async (req, res, next) => {
         if (!req.user) {
             return res.status(401).json({ error: 'Authentication required' });
-        }
-
-        const logMsg = `[${new Date().toISOString()}] ${req.method} ${req.url} - User: ${req.user.id}, Role: ${req.user.role}, Allowed: ${allowedRoles}\n`;
-        try {
-            fs.appendFileSync('auth_debug.log', logMsg);
-        } catch (e) {
-            // ignore logging errors
         }
 
         if (!allowedRoles.includes(req.user.role)) {

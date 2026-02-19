@@ -246,27 +246,12 @@ const AppContent: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center gap-6">
-              {!isDemo && (
-                <div className="hidden lg:flex items-center gap-2 bg-slate-50 border border-slate-100 p-1 rounded-xl">
-                  {(Object.values(ROLES)).map(role => (
-                    <button
-                      key={role}
-                      onClick={() => changeRole(role as any)}
-                      className={`px-3 py-1.5 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all ${currentPermissions === role ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
-                        }`}
-                    >
-                      {role}
-                    </button>
-                  ))}
-                </div>
-              )}
-
               {!overrideState.active && !isDemo && (
                 <button
                   onClick={() => setShowOverrideModal(true)}
-                  className="px-4 py-2 border border-danger/20 text-danger rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-danger hover:text-white transition-all"
+                  className="px-4 py-2 border border-danger/20 text-danger rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-danger hover:text-white transition-all flex items-center gap-2"
                 >
-                  Emergency Override
+                  <span>🚨</span> Emergency Override
                 </button>
               )}
 

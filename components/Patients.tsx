@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Patient } from '../types';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const Patients: React.FC = () => {
+  const { showToast } = useToast();
   const [selectedPatient, setSelectedPatient] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [patients, setPatients] = useState<any[]>([]);
@@ -51,7 +53,13 @@ const Patients: React.FC = () => {
     if (!newPatient.name || !newPatient.date_of_birth || !newPatient.gender) return;
     setSaving(true);
     try {
-      await api.createPatient(newPatient);
+      if ((newPatient as any).id) {
+        await api.updatePatient((newPatient as any).id, newPatient);
+        showToast('success', 'Patient updated successfully');
+      } else {
+        await api.createPatient(newPatient);
+        showToast('success', 'Patient registered successfully');
+      }
       setShowRegisterForm(false);
       setNewPatient({ name: '', date_of_birth: '', gender: '', blood_group: '', phone: '', email: '', address: '', city: '', state: '', pincode: '' });
       fetchPatients(); // Refresh list
@@ -60,6 +68,11 @@ const Patients: React.FC = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleEditPatient = (patient: any) => {
+    setNewPatient({ ...patient });
+    setShowRegisterForm(true);
   };
 
   const getStatusColor = (status: string) => {
@@ -109,9 +122,22 @@ const Patients: React.FC = () => {
 
               <div className="mt-6 p-4 bg-primary/5 border border-primary/10 rounded-2xl flex justify-between items-center">
                 <span className="text-[10px] font-black text-primary uppercase">Status</span>
-                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase border ${getStatusColor(selectedPatient.status)}`}>
-                  {selectedPatient.status}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase border ${getStatusColor(selectedPatient.status)}`}>
+                    {selectedPatient.status}
+                  </span>
+                  {isAdmin && (
+                    <button
+                      onClick={() => {
+                        handleEditPatient(selectedPatient);
+                        setSelectedPatient(null);
+                      }}
+                      className="p-1.5 text-slate-400 hover:text-primary transition-colors"
+                    >
+                      ✎
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -191,8 +217,12 @@ const Patients: React.FC = () => {
       <div className="space-y-10 animate-in fade-in duration-500 max-w-3xl mx-auto">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Register New Patient</h2>
-            <p className="text-sm font-medium text-slate-500">Enter patient details to create a new record.</p>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+              {(newPatient as any).id ? 'Edit Patient Record' : 'Register New Patient'}
+            </h2>
+            <p className="text-sm font-medium text-slate-500">
+              {(newPatient as any).id ? 'Update patient details.' : 'Enter patient details to create a new record.'}
+            </p>
           </div>
           <button onClick={() => setShowRegisterForm(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">
             Cancel
@@ -265,7 +295,7 @@ const Patients: React.FC = () => {
           </div>
           <button type="submit" disabled={saving}
             className="w-full bg-primary text-white font-black py-4 rounded-2xl mt-4 hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50">
-            {saving ? '⏳ Registering...' : '✓ Register Patient'}
+            {saving ? '⏳ Saving...' : ((newPatient as any).id ? '✓ Update Patient' : '✓ Register Patient')}
           </button>
         </form>
       </div>
@@ -355,17 +385,28 @@ const Patients: React.FC = () => {
                   <td className="px-10 py-8 text-right">
                     <div className="flex justify-end gap-2">
                       {isAdmin && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (confirm(`Are you sure you want to delete ${p.name}? This will be logged.`)) {
-                              api.deletePatient(p.id).then(() => fetchPatients());
-                            }
-                          }}
-                          className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-danger hover:border-danger/20 hover:shadow-lg transition-all"
-                        >
-                          <span className="text-xl">🗑️</span>
-                        </button>
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditPatient(p);
+                            }}
+                            className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-primary hover:border-primary/20 hover:shadow-lg transition-all"
+                          >
+                            <span className="text-xl">✎</span>
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm(`Are you sure you want to delete ${p.name}? This will be logged.`)) {
+                                api.deletePatient(p.id).then(() => fetchPatients());
+                              }
+                            }}
+                            className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-danger hover:border-danger/20 hover:shadow-lg transition-all"
+                          >
+                            <span className="text-xl">🗑️</span>
+                          </button>
+                        </>
                       )}
                       <button className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-primary hover:border-primary/20 hover:shadow-lg transition-all">
                         <span className="text-xl">➔</span>
