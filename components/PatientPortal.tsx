@@ -66,11 +66,12 @@ const PatientPortal: React.FC = () => {
    return (
       <div className="max-w-[1200px] mx-auto animate-in fade-in duration-500 space-y-10">
          {/* Hero */}
-         <div className="bg-primary p-12 rounded-[4rem] text-white relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+         <div className="bg-medical-gradient p-12 rounded-[4rem] text-white relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/20 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4" />
             <div className="relative z-10 space-y-4">
                <h2 className="text-4xl font-black tracking-tight">Namaste, Patient</h2>
-               <p className="text-white/80 font-medium max-w-xl">Welcome to your health dashboard. Access your records, book new visits, and communicate with your care team in one place.</p>
+               <p className="text-white/90 font-medium max-w-xl">Welcome to your health dashboard. Access your records, book new visits, and communicate with your care team in one place.</p>
                <div className="flex gap-4 pt-2">
                   <div className="bg-white/10 border border-white/10 px-5 py-3 rounded-2xl">
                      <p className="text-[9px] font-black uppercase tracking-widest text-white/60">Health Score</p>
@@ -94,7 +95,7 @@ const PatientPortal: React.FC = () => {
                <div className="w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center text-3xl mb-6">📅</div>
                <h3 className="text-xl font-black text-slate-900 mb-2">Book Appointment</h3>
                <p className="text-xs text-slate-500 font-medium mb-6">Schedule your next visit with your preferred specialist.</p>
-               <button onClick={handleBookAppointment} disabled={booking} className="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-slate-800 disabled:opacity-50 active:scale-95">
+               <button onClick={handleBookAppointment} disabled={booking} className="w-full py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-primary/90 disabled:opacity-50 active:scale-95">
                   {booking ? 'Scheduling...' : 'Start Booking'}
                </button>
             </div>
@@ -102,13 +103,13 @@ const PatientPortal: React.FC = () => {
                <div className="w-14 h-14 bg-success/5 rounded-2xl flex items-center justify-center text-3xl mb-6">📄</div>
                <h3 className="text-xl font-black text-slate-900 mb-2">View Reports</h3>
                <p className="text-xs text-slate-500 font-medium mb-6">Download and view your latest lab results and imaging.</p>
-               <button onClick={handleDownloadReports} className="w-full py-3 bg-success text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-green-700 active:scale-95">Access Vault</button>
+               <button onClick={handleDownloadReports} className="w-full py-3 bg-success text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-success/90 active:scale-95">Access Vault</button>
             </div>
             <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
                <div className="w-14 h-14 bg-warning/5 rounded-2xl flex items-center justify-center text-3xl mb-6">💊</div>
                <h3 className="text-xl font-black text-slate-900 mb-2">Prescriptions</h3>
                <p className="text-xs text-slate-500 font-medium mb-6">Renew or check dosage for your active medications.</p>
-               <button onClick={() => showToast('info', 'Opening prescription manager...')} className="w-full py-3 bg-warning text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-amber-500 active:scale-95">Refill Meds</button>
+               <button onClick={() => showToast('info', 'Opening prescription manager...')} className="w-full py-3 bg-warning text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-warning/90 active:scale-95">Refill Meds</button>
             </div>
          </div>
 
@@ -137,7 +138,7 @@ const PatientPortal: React.FC = () => {
                               <p className="text-sm font-black text-slate-800">{appt.doctor || appt.doctor_name || 'Doctor'}</p>
                               <p className="text-[10px] font-bold text-slate-400">{appt.specialty || 'General'} • {appt.date || appt.appointment_date} • {appt.time || appt.appointment_time || ''}</p>
                            </div>
-                           <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shrink-0 ${(appt.status || '').toLowerCase() === 'completed' ? 'bg-slate-100 text-slate-400' : 'bg-success/10 text-success'}`}>{appt.status}</span>
+                           <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shrink-0 ${(appt.status || '').toLowerCase() === 'completed' ? 'bg-hospital-bg text-text-muted border border-hospital-border' : 'bg-success/10 text-success border border-success/10'}`}>{appt.status}</span>
                         </div>
                      ))}
                   </div>

@@ -103,8 +103,8 @@ const BedManagement: React.FC = () => {
       {/* Header & Global Stats */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Bed Matrix Control</h2>
-          <p className="text-sm font-medium text-slate-500 font-kannada">“ಹಾಸಿಗೆ ಲಭ್ಯತೆ — ತಕ್ಷಣದ ಆರೈಕೆ” — Real-time capacity command.</p>
+          <h2 className="text-3xl font-black text-text-main tracking-tight">Bed Matrix Control</h2>
+          <p className="text-sm font-medium text-text-muted font-kannada">“ಹಾಸಿಗೆ ಲಭ್ಯತೆ — ತಕ್ಷಣದ ಆರೈಕೆ” — Real-time capacity command.</p>
         </div>
         <div className="flex gap-4">
           <div className="flex bg-white rounded-2xl p-1 shadow-sm border border-slate-100">
@@ -121,8 +121,8 @@ const BedManagement: React.FC = () => {
           </div>
           {isAdmin && (
             <div className="flex gap-2">
-              <button onClick={() => setShowAddWard(true)} className="px-4 py-3 bg-white border border-slate-200 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-slate-50 transition-all">+ Ward</button>
-              <button onClick={() => setShowAddBed(true)} className="px-4 py-3 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:bg-slate-800 transition-all">+ Bed</button>
+              <button onClick={() => setShowAddWard(true)} className="px-4 py-3 bg-white border border-hospital-border rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-hospital-bg transition-all">+ Ward</button>
+              <button onClick={() => setShowAddBed(true)} className="px-4 py-3 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:shadow-primary/20 transition-all">+ Bed</button>
             </div>
           )}
         </div>
@@ -177,11 +177,13 @@ const BedManagement: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {wards.map(ward => {
           const occupancy = ward.total_beds > 0 ? Math.round((ward.occupied_beds / ward.total_beds) * 100) : 0;
+          const isICU = ward.ward_type === 'ICU';
           return (
-            <div key={ward.id} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm group hover:shadow-xl transition-all">
+            <div key={ward.id} className={`bg-white p-8 rounded-[3rem] border ${isICU ? 'border-danger/20' : 'border-slate-100'} shadow-sm group hover:shadow-xl transition-all relative overflow-hidden`}>
+              {isICU && <div className="absolute top-0 right-0 w-24 h-24 bg-danger/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />}
               <div className="flex justify-between items-start mb-6">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{ward.name} ({ward.code})</p>
-                <div className="w-10 h-10 bg-hospital-bg rounded-xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                <div className={`w-10 h-10 ${isICU ? 'bg-danger/10 text-danger' : 'bg-hospital-bg text-primary'} rounded-xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform relative z-10`}>
                   {ward.ward_type === 'ICU' ? '🏥' : ward.ward_type === 'General' ? '🛌' : ward.ward_type === 'Private' ? '💎' : '☣️'}
                 </div>
               </div>
@@ -329,15 +331,15 @@ const BedManagement: React.FC = () => {
             </div>
           )}
 
-          {/* AI Logic Suggestion (Keep mock as it's a feature highlight) */}
-          <div className="bg-slate-900 rounded-[3.5rem] p-10 text-white relative overflow-hidden shadow-2xl group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2 animate-pulse" />
+          {/* AI Logic Suggestion */}
+          <div className="bg-medical-gradient rounded-[3.5rem] p-10 text-white relative overflow-hidden shadow-2xl group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2 animate-pulse" />
             <div className="relative z-10 space-y-8">
               <div className="flex items-center gap-3">
                 <span className="text-2xl group-hover:rotate-12 transition-transform">✨</span>
                 <h4 className="text-sm font-black text-white">AI Surge Logic</h4>
               </div>
-              <p className="text-xs text-slate-400 font-medium leading-relaxed font-kannada">
+              <p className="text-xs text-white/80 font-medium leading-relaxed font-kannada">
                 “ಹಾಸಿಗೆ ಲಭ್ಯತೆ — ತಕ್ಷಣದ ಆರೈಕೆ”<br />
                 Predicted demand for ICU beds will exceed capacity in 4 hours due to high ER volume. Recommend processing discharges.
               </p>

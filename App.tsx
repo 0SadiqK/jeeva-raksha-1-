@@ -90,12 +90,12 @@ const AppContent: React.FC = () => {
   // ─── Show loading spinner while checking saved token ───────
   if (authLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-hospital-bg gap-5">
-        <div className="w-16 h-16 rounded-2xl bg-white shadow-xl flex items-center justify-center border border-hospital-border">
-          <Hospital size={32} className="text-primary" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-soft-blue gap-5">
+        <div className="w-20 h-20 rounded-[2rem] bg-white shadow-2xl flex items-center justify-center border border-hospital-border animate-in zoom-in duration-500">
+          <Hospital size={40} className="text-primary" />
         </div>
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Initializing System...</p>
+        <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Initializing System...</p>
       </div>
     );
   }
@@ -144,14 +144,14 @@ const AppContent: React.FC = () => {
   const isHome = activeView === 'HOME';
 
   return (
-    <div className="flex min-h-screen bg-hospital-bg font-sans text-text-body">
+    <div className="flex min-h-screen bg-soft-blue font-sans text-text-body">
       {!isHome && <Sidebar activeView={activeView} setActiveView={setActiveView} />}
 
-      <main className={`flex-1 h-screen relative flex flex-col overflow-hidden ${isHome ? 'w-full' : 'bg-hospital-bg'}`}>
+      <main className={`flex-1 h-screen relative flex flex-col overflow-hidden ${isHome ? 'w-full' : 'bg-soft-blue'}`}>
 
         {/* Demo Mode Banner */}
         {isDemo && (
-          <div className="bg-warning text-white px-4 py-1.5 flex justify-between items-center z-50 shadow-sm">
+          <div className="bg-medical-gradient text-white px-4 py-1.5 flex justify-between items-center z-50 shadow-sm">
             <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
               <Eye size={12} />
               <span>Demo Mode — Changes will not be saved</span>
@@ -191,55 +191,52 @@ const AppContent: React.FC = () => {
 
         {/* Header */}
         {!isHome && (
-          <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-hospital-border bg-white/80 backdrop-blur-md px-8 shadow-sm shrink-0">
+          <header className="sticky top-0 z-40 flex h-20 w-full items-center justify-between border-b border-hospital-border bg-white shadow-xl shadow-slate-200/50 px-8 shrink-0">
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setActiveView('HOME')}
-                  className="text-[10px] font-bold text-text-muted uppercase tracking-widest hover:text-primary transition-colors cursor-pointer flex items-center gap-1"
-                >
-                  <HomeIcon size={12} />
-                  {t('home')}
-                </button>
-                <span className="text-hospital-border">/</span>
-                <span className={`text-[10px] font-black text-primary uppercase tracking-widest ${t('', activeView).match(/[\u0C80-\u0CFF]/) ? 'font-kannada' : ''}`}>
-                  {t('', activeView)}
-                </span>
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-primary/10 rounded-xl text-primary md:hidden" onClick={() => setActiveView('HOME')}>
+                  <HomeIcon size={20} />
+                </div>
+                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-hospital-bg rounded-2xl border border-hospital-border">
+                  <span className="text-[10px] font-black text-text-muted tracking-widest uppercase">System Path</span>
+                  <span className="text-slate-300">/</span>
+                  <span className="text-[10px] font-black text-primary tracking-widest uppercase">{t('', activeView)}</span>
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-success/10 text-success px-4 py-2 rounded-2xl border border-success/20">
+                  <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Network Live</span>
+                </div>
+              </div>
+
               {!overrideState.active && !isDemo && (
                 <button
                   onClick={() => setShowOverrideModal(true)}
-                  className="px-4 py-2 border border-danger/20 text-danger rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-danger hover:text-white transition-all flex items-center gap-2"
+                  className="px-6 py-2.5 bg-danger text-white rounded-xl text-[9px] font-black uppercase tracking-[0.2em] hover:bg-danger/90 transition-all flex items-center gap-2 shadow-lg shadow-danger/20"
                 >
-                  <AlertTriangle size={12} />
-                  <span>Emergency Override</span>
+                  <AlertTriangle size={14} />
+                  <span>Critical Override</span>
                 </button>
               )}
 
               <LanguageToggle />
 
-              <div className="flex items-center gap-3 pl-6 border-l border-hospital-border">
+              <div className="flex items-center gap-4 pl-6 border-l border-hospital-border">
                 <div className="text-right hidden md:block">
-                  <p className="text-[10px] font-bold text-text-main leading-tight">{user?.name}</p>
-                  <p className={`text-[8px] font-bold uppercase tracking-tighter ${isDemo ? 'text-warning' : overrideState.active ? 'text-danger' : 'text-primary'}`}>
-                    {isDemo ? `DEMO (${user?.role})` : `${currentPermissions} LEVEL`}
+                  <p className="text-[11px] font-black text-text-main leading-tight">{user?.name}</p>
+                  <p className={`text-[8px] font-black uppercase tracking-[0.2em] ${isDemo ? 'text-warning' : overrideState.active ? 'text-danger' : 'text-primary'}`}>
+                    {isDemo ? `Demo Access` : `Secure Connection`}
                   </p>
                 </div>
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black border shadow-sm shrink-0 ${isDemo ? 'bg-warning/10 text-warning border-warning/20' :
-                  overrideState.active ? 'bg-danger/10 text-danger border-danger/20 animate-pulse' :
-                    'bg-primary/10 text-primary border-primary/20'
+                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-sm font-black border-2 shadow-xl shrink-0 transition-transform hover:scale-105 cursor-pointer ${isDemo ? 'bg-amber-500 text-white border-amber-200' :
+                  overrideState.active ? 'bg-danger text-white border-red-200 animate-pulse' :
+                    'bg-medical-gradient text-white border-white/20'
                   }`}>
                   {user?.name?.split(' ').map(n => n[0]).join('') || '?'}
                 </div>
-                <button
-                  onClick={logout}
-                  className="text-text-muted hover:text-danger transition-colors cursor-pointer ml-2"
-                  title="Sign Out"
-                >
-                  <LogOut size={16} />
-                </button>
               </div>
             </div>
           </header>

@@ -11,7 +11,7 @@ const projectRoot = path.resolve(__dirname, '..');
 const logPath = path.resolve(projectRoot, 'debug_root.log');
 
 import { authenticate, demoGuard } from './middleware/authMiddleware.js';
-import { healthCheck } from './db.js';
+import { healthCheck, pool } from './db.js';
 
 import authRouter from './routes/auth.js';
 import patientsRouter from './routes/patients.js';
@@ -75,11 +75,38 @@ app.use('/api', bedsRouter);
 // ─── Health check (enhanced) ────────────────────────────────
 app.get('/api/health', async (_req, res) => {
     const dbHealth = await healthCheck();
+    
+    // Check if auth columns exist
+    let authSchemaOk = false;
+    let authSchemaError = null;
+    try {
+        const result = await pool.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'users' 
+            AND column_name IN ('password_hash', 'login_attempts', 'locked_until', 'last_login_at')
+        `);
+        const hasTable = await pool.query(`
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'login_logs'
+            )
+        `);
+        authSchemaOk = result.rows.length === 4 && hasTable.rows[0].exists;
+    } catch (err) {
+        authSchemaError = err.message;
+    }
+    
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
         version: '2.1.0',
         database: dbHealth,
+        auth_schema: {
+            ready: authSchemaOk,
+            error: authSchemaError,
+            hint: authSchemaOk ? null : 'Run: psql -h localhost -U postgres -d jeeva_raksha -f server/migration_auth.sql'
+        },
     });
 });
 

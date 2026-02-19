@@ -137,8 +137,9 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     <div className="min-h-screen bg-hospital-bg font-sans selection:bg-primary/20 p-8 space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
 
       {/* ── GREETING + TOP BAR ───────────────────────────── */}
-      <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
-        <div>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative">
+        <div className="absolute -top-10 -left-10 w-48 h-48 bg-primary/30 rounded-full blur-[80px] pointer-events-none" />
+        <div className="relative z-10">
           <div className="flex items-center gap-3 mb-1">
             <h2 className="text-3xl font-black text-text-main tracking-tight">
               {greet()}, <span className="text-primary">{user?.name?.split(' ')[0] || 'Doctor'}</span>
@@ -215,14 +216,14 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       {/* ── KPI CARDS ──────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {[
-          { label: 'Patients Today', value: stats?.patientsToday?.toLocaleString() || '—', icon: <Users size={20} />, trend: '+12%', trendUp: true, color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'OPD Queue', value: stats?.opdWaiting || '—', icon: <Clock size={20} />, trend: '-8%', trendUp: false, color: 'text-amber-600', bg: 'bg-amber-50' },
-          { label: 'Bed Occupancy', value: `${stats?.bedOccupancy || 0}%`, icon: <Bed size={20} />, trend: `${stats?.occupiedBeds || 0} beds`, trendUp: true, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'ER Active', value: String(stats?.emergencyCases || 0).padStart(2, '0'), icon: <Ambulance size={20} />, trend: 'Live', trendUp: true, color: 'text-red-600', bg: 'bg-red-50' },
-          { label: 'Active OTs', value: '03', icon: <Scissors size={20} />, trend: '2 scheduled', trendUp: true, color: 'text-purple-600', bg: 'bg-purple-50' },
-          { label: 'Revenue Today', value: `₹${((stats?.revenue || 428500) / 1000).toFixed(0)}K`, icon: <Banknote size={20} />, trend: '+15%', trendUp: true, color: 'text-slate-600', bg: 'bg-slate-50' },
+          { label: 'Patients Today', value: stats?.patientsToday?.toLocaleString() || '—', icon: <Users size={20} />, trend: '+12%', trendUp: true, color: 'text-white', bg: 'bg-blue-600', border: 'border-blue-200' },
+          { label: 'OPD Queue', value: stats?.opdWaiting || '—', icon: <Clock size={20} />, trend: '-8%', trendUp: false, color: 'text-white', bg: 'bg-amber-500', border: 'border-amber-200' },
+          { label: 'Bed Occupancy', value: `${stats?.bedOccupancy || 0}%`, icon: <Bed size={20} />, trend: `${stats?.occupiedBeds || 0} beds`, trendUp: true, color: 'text-white', bg: 'bg-emerald-500', border: 'border-emerald-200' },
+          { label: 'ER Active', value: String(stats?.emergencyCases || 0).padStart(2, '0'), icon: <Ambulance size={20} />, trend: 'Live', trendUp: true, color: 'text-white', bg: 'bg-rose-600', border: 'border-rose-200' },
+          { label: 'Active OTs', value: '03', icon: <Scissors size={20} />, trend: '2 scheduled', trendUp: true, color: 'text-white', bg: 'bg-sky-500', border: 'border-sky-200' },
+          { label: 'Revenue Today', value: `₹${((stats?.revenue || 428500) / 1000).toFixed(0)}K`, icon: <Banknote size={20} />, trend: '+15%', trendUp: true, color: 'text-white', bg: 'bg-indigo-600', border: 'border-indigo-200' },
         ].map(kpi => (
-          <div key={kpi.label} className="bg-hospital-card p-5 rounded-2xl border border-hospital-border shadow-card hover:shadow-card-hover transition-all group">
+          <div key={kpi.label} className={`bg-hospital-card p-5 rounded-2xl border ${kpi.border} shadow-card hover:shadow-card-hover transition-all group`}>
             <div className="flex justify-between items-start mb-4">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ${kpi.bg} ${kpi.color}`}>
                 {kpi.icon}
@@ -293,9 +294,9 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         <div className="lg:col-span-7 space-y-6">
 
           {/* AI Risk Engine */}
-          <div className="bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden shadow-xl border border-slate-800">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/10 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4" />
+          <div className="bg-medical-gradient rounded-3xl p-6 text-white relative overflow-hidden shadow-xl border border-white/10">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4" />
             <div className="relative z-10 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

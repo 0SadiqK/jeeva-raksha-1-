@@ -99,14 +99,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView }) => {
     <aside className="w-64 bg-hospital-card text-slate-600 flex flex-col border-r border-hospital-border h-screen transition-all duration-300 z-50 shadow-sm">
       <div
         onClick={() => setActiveView('HOME')}
-        className="h-16 flex items-center gap-3 px-6 border-b border-hospital-border cursor-pointer hover:bg-hospital-bg transition-colors"
+        className="h-20 flex items-center gap-4 px-6 border-b border-hospital-border cursor-pointer hover:bg-hospital-bg/50 transition-all bg-medical-gradient"
       >
-        <div className="h-8 w-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0 text-primary">
-          <Home size={18} />
+        <div className="h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center shrink-0 text-primary">
+          <Activity size={24} />
         </div>
         <div className="overflow-hidden">
-          <h2 className="text-text-main font-bold text-sm tracking-tight leading-none truncate">{t('brand')}</h2>
-          <p className="text-[10px] font-medium text-primary mt-0.5 font-kannada whitespace-nowrap tracking-wide">Unified HIS</p>
+          <h2 className="text-white font-black text-sm tracking-tight leading-none truncate">{t('brand')}</h2>
+          <p className="text-[10px] font-bold text-white/70 mt-1 font-kannada whitespace-nowrap tracking-wide uppercase">Unified Health System</p>
         </div>
       </div>
 
@@ -128,15 +128,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView }) => {
                     onClick={() => handleNavClick(item.id)}
                     disabled={!accessible}
                     title={!accessible ? `Requires ${requiredLevel} access` : undefined}
-                    className={`w-full group relative flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 ${!accessible
-                      ? 'opacity-40 cursor-not-allowed'
+                    className={`w-full group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${!accessible
+                      ? 'opacity-30 cursor-not-allowed'
                       : activeView === item.id
-                        ? 'bg-primary/10 text-primary font-medium'
-                        : 'hover:bg-hospital-bg text-text-body hover:text-text-main'
+                        ? 'bg-medical-gradient text-white font-black shadow-lg shadow-primary/30 scale-[1.02]'
+                        : 'hover:bg-primary/5 text-text-body hover:text-primary'
                       }`}
                   >
-                    <span className={`${accessible ? 'opacity-80 group-hover:opacity-100' : 'grayscale'}`}>{item.icon}</span>
-                    <span className="text-xs font-medium whitespace-nowrap overflow-hidden flex-1 text-left">
+                    <span className={`${accessible ? (activeView === item.id ? 'text-white' : 'text-primary group-hover:scale-110 transition-transform') : 'grayscale'}`}>{item.icon}</span>
+                    <span className="text-[11px] font-black uppercase tracking-wider whitespace-nowrap overflow-hidden flex-1 text-left">
                       {label}
                     </span>
                     {!accessible && (

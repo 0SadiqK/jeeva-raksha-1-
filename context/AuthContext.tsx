@@ -250,8 +250,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         // If not a 404, it's a real auth error from the backend
         if (res.status !== 404) {
+          // If server error (5xx), consider it as backend unreachable to trigger fallback
+          if (res.status >= 500) {
+            throw new Error('Failed to fetch (Server Error)');
+          }
+
           const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || data.message || 'Login failed');
+          const msg = data.hint || data.message || data.error || 'Login failed';
+          throw new Error(msg);
         }
       } catch (err: any) {
         // Only fall through to mock if it's a network/404 error

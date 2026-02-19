@@ -103,8 +103,8 @@ const Emergency: React.FC = () => {
   return (
     <div className="max-w-[1600px] mx-auto animate-in fade-in duration-700 space-y-8 pb-20 p-8">
       {/* Header with Stats */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 bg-slate-900 p-8 rounded-2xl text-white shadow-2xl relative overflow-hidden border border-slate-800">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-danger/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 animate-pulse"></div>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 bg-primary p-8 rounded-2xl text-white shadow-2xl relative overflow-hidden border border-primary/20">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 animate-pulse"></div>
 
         <div className="relative z-10">
           <div className="flex items-center gap-4 mb-3">
@@ -113,29 +113,32 @@ const Emergency: React.FC = () => {
             </div>
             <h2 className="text-2xl font-black tracking-tight">Trauma Command Center</h2>
           </div>
-          <p className="text-sm font-bold text-slate-400 font-kannada flex items-center gap-2">
+          <p className="text-sm font-bold text-white/70 font-kannada flex items-center gap-2">
             <span>“ತುರ್ತು ಪರಿಸ್ಥಿತಿ — ತಕ್ಷಣದ ಸ್ಪಂದನೆ”</span>
-            <span className="w-1 h-1 rounded-full bg-slate-500" />
+            <span className="w-1 h-1 rounded-full bg-white/30" />
             <span>Life critical response system.</span>
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10 w-full lg:w-auto">
           <div className="text-center md:text-left">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Active Cases</p>
+            <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Active Cases</p>
             <p className="text-3xl font-black text-white">{erStats.active}</p>
           </div>
           <div className="text-center md:text-left">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Critical Red</p>
-            <p className="text-3xl font-black text-danger">{erStats.critical}</p>
+            <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Critical Red</p>
+            <div className="flex items-center gap-2 justify-center md:justify-start">
+              <span className="w-2 h-2 rounded-full bg-danger animate-ping" />
+              <p className="text-3xl font-black text-white">{erStats.critical}</p>
+            </div>
           </div>
           <div className="text-center md:text-left">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Free Bays</p>
-            <p className="text-3xl font-black text-success">{erStats.freeBays}</p>
+            <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Free Bays</p>
+            <p className="text-3xl font-black text-white">{erStats.freeBays}</p>
           </div>
           <div className="text-center md:text-left">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">On Call</p>
-            <p className="text-3xl font-black text-primary">{erStats.onCall}</p>
+            <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">On Call</p>
+            <p className="text-3xl font-black text-white">{erStats.onCall}</p>
           </div>
         </div>
       </div>
@@ -289,10 +292,10 @@ const Emergency: React.FC = () => {
                   </div>
 
                   <div className="space-y-3 flex flex-col justify-center">
-                    <button className="w-full py-3.5 bg-danger text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-danger/20 hover:bg-red-700 transition-all flex items-center justify-center gap-3">
+                    <button className="w-full py-3.5 bg-danger text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-danger/20 hover:bg-danger/90 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
                       <ShieldAlert size={16} /> ICU Admission (Code Red)
                     </button>
-                    <button className="w-full py-3.5 bg-text-main text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                    <button className="w-full py-3.5 bg-secondary text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-secondary/20 hover:bg-secondary/90 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
                       <ArrowRight size={16} /> Shift to Emergency OT
                     </button>
                     <button className="w-full py-3.5 bg-white border border-hospital-border text-text-body rounded-xl font-black text-xs uppercase tracking-widest hover:bg-hospital-bg transition-all flex items-center justify-center gap-2">

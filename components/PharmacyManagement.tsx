@@ -172,7 +172,7 @@ const PharmacyManagement: React.FC = () => {
                                         {rx.priority === 'Urgent' && <span className="px-2 py-1 bg-danger/10 text-danger rounded-lg text-[8px] font-black uppercase tracking-widest animate-pulse shrink-0">Urgent</span>}
                                         <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest shrink-0 ${rx.status === 'Dispensed' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>{rx.status}</span>
                                         {rx.status === 'Pending' && (
-                                            <button onClick={() => handleDispense(rx.id)} disabled={dispensing === rx.id} className="px-5 py-2 bg-success text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-green-700 transition-all disabled:opacity-50 shrink-0">
+                                            <button onClick={() => handleDispense(rx.id)} disabled={dispensing === rx.id} className="px-5 py-2 bg-success text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-success/90 transition-all disabled:opacity-50 shrink-0">
                                                 {dispensing === rx.id ? 'Dispensing...' : 'Dispense'}
                                             </button>
                                         )}
@@ -185,17 +185,17 @@ const PharmacyManagement: React.FC = () => {
             )}
 
             {/* Compliance Footer */}
-            <div className="bg-slate-900 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2" />
+            <div className="bg-primary rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2" />
                 <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
                     <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-3xl">💊</div>
                     <div className="flex-1 space-y-2">
                         <h4 className="text-lg font-black text-white">Drug Dispensation Compliance</h4>
-                        <p className="text-xs text-slate-400 leading-relaxed font-kannada">"ಸುರಕ್ಷಿತ ಔಷಧ — ಸುರಕ್ಷಿತ ಜೀವ" — All dispensations are batch-tracked and logged.</p>
+                        <p className="text-xs text-white/70 leading-relaxed font-kannada">"ಸುರಕ್ಷಿತ ಔಷಧ — ಸುರಕ್ಷಿತ ಜೀವ" — All dispensations are batch-tracked and logged.</p>
                     </div>
                     <div className="text-right shrink-0">
-                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Today's Dispensed</p>
-                        <p className="text-xl font-black text-primary mt-1">312</p>
+                        <p className="text-[9px] font-black text-white/50 uppercase tracking-widest">Today's Dispensed</p>
+                        <p className="text-xl font-black text-white mt-1">312</p>
                     </div>
                 </div>
             </div>

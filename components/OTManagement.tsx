@@ -142,8 +142,8 @@ const OTManagement: React.FC = () => {
             ))}
           </div>
 
-          <div className="bg-slate-900 rounded-[3rem] p-8 text-white relative overflow-hidden shadow-2xl mt-8">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2" />
+          <div className="bg-primary rounded-[3rem] p-8 text-white relative overflow-hidden shadow-2xl mt-8">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2" />
             <div className="relative z-10 space-y-6">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">⚡</span>
@@ -151,20 +151,20 @@ const OTManagement: React.FC = () => {
               </div>
               <div className="space-y-4">
                 <div>
-                  <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                  <div className="flex justify-between text-[10px] font-black text-white/50 uppercase tracking-widest mb-2">
                     <span>OT Utilization</span>
                     <span className="text-white">78%</span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary w-[78%]" />
+                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-white w-[78%]" />
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                  <div className="flex justify-between text-[10px] font-black text-white/50 uppercase tracking-widest mb-2">
                     <span>Cleaning TAT</span>
                     <span className="text-white">18m</span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                     <div className="h-full bg-success w-[90%]" />
                   </div>
                 </div>
@@ -287,8 +287,8 @@ const OTManagement: React.FC = () => {
                   </div>
 
                   <div className="flex gap-4">
-                    <button className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl">Start Procedure</button>
-                    <button className="flex-1 py-4 bg-danger text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-danger/20">Emergency Stop</button>
+                    <button className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary/90 transition-all shadow-xl shadow-primary/20">Start Procedure</button>
+                    <button className="flex-1 py-4 bg-danger text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-danger/90 transition-all shadow-xl shadow-danger/20">Emergency Stop</button>
                   </div>
                 </div>
               </div>

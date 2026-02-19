@@ -148,7 +148,7 @@ const DoctorPad: React.FC = () => {
       {/* Session Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
         <div className="flex items-center gap-6">
-          <div className="h-16 w-16 bg-primary/5 rounded-[2rem] flex items-center justify-center text-primary text-3xl border border-primary/10 shadow-inner">👨‍⚕️</div>
+          <div className="h-16 w-16 bg-medical-gradient rounded-[2rem] flex items-center justify-center text-white text-3xl border border-white/20 shadow-lg">👨‍⚕️</div>
           <div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Active Ward Rounds: General Ward A</h1>
             <div className="flex items-center gap-4 mt-1">
@@ -168,7 +168,7 @@ const DoctorPad: React.FC = () => {
           <button
             onClick={finalizeRound}
             disabled={isProcessing}
-            className="flex-1 md:flex-none px-10 py-4 bg-slate-900 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            className="flex-1 md:flex-none px-10 py-4 bg-medical-gradient text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
           >
             {isProcessing ? 'Saving...' : 'Finalize & Sign All'}
           </button>
@@ -360,7 +360,7 @@ const DoctorPad: React.FC = () => {
                       </div>
                       <button
                         onClick={finalizeRound}
-                        className="w-full py-5 bg-primary text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all active:scale-[0.98]"
+                        className="w-full py-5 bg-medical-gradient text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all active:scale-[0.98]"
                       >
                         SUBMIT FINAL ROUNDS ENTRY
                       </button>
@@ -372,20 +372,20 @@ const DoctorPad: React.FC = () => {
           </div>
 
           {/* Compliance & Safety Quote */}
-          <div className="bg-slate-900 rounded-[3.5rem] p-12 text-white relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+          <div className="bg-primary rounded-[3.5rem] p-12 text-white relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
               <div className="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center text-4xl shadow-inner">🛡️</div>
               <div className="flex-1 space-y-3">
                 <h3 className="text-xl font-black text-white">Clinical Compliance Protocol</h3>
-                <p className="text-sm text-slate-400 font-medium leading-relaxed font-kannada">
+                <p className="text-sm text-white/80 font-medium leading-relaxed font-kannada">
                   “ನಿಖರ ದಾಖಲಾತಿ — ಸುರಕ್ಷಿತ ಚಿಕಿತ್ಸೆ”<br />
                   Every round entry is cryptographically signed and time-stamped, ensuring a zero-tamper audit trail for patient safety.
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Next Audit Cycle</p>
-                <p className="text-xl font-black text-primary mt-1">12 Days</p>
+                <p className="text-[9px] font-black text-white/50 uppercase tracking-widest">Next Audit Cycle</p>
+                <p className="text-xl font-black text-white mt-1">12 Days</p>
               </div>
             </div>
           </div>

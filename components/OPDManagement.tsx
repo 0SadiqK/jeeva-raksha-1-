@@ -38,7 +38,7 @@ const OPDManagement: React.FC = () => {
         ? new Date(Date.now() - parseInt(patientData.age) * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         : new Date().toISOString().split('T')[0];
 
-      const patient = await api.createPatient({
+      const patient = await apiClient.createPatient({
         name: patientData.name,
         date_of_birth: dob,
         gender: patientData.gender,
@@ -125,9 +125,9 @@ const OPDManagement: React.FC = () => {
         </div>
 
         {!showCamera ? (
-          <div className="bg-hospital-card p-12 rounded-2xl border-2 border-dashed border-hospital-border text-center space-y-6 hover:border-primary/50 transition-all group shadow-sm hover:shadow-md hover:bg-hospital-bg/50">
-            <div className="w-20 h-20 bg-primary/5 rounded-2xl flex items-center justify-center mx-auto text-primary text-3xl group-hover:scale-110 transition-transform border border-primary/10">
-              <Scan size={40} />
+          <div className="bg-hospital-card p-12 rounded-[3rem] border-2 border-dashed border-primary/20 text-center space-y-6 hover:border-primary transition-all group shadow-sm hover:shadow-xl hover:bg-white">
+            <div className="w-24 h-24 bg-medical-gradient rounded-3xl flex items-center justify-center mx-auto text-white text-4xl group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
+              <Scan size={48} />
             </div>
             <div className="space-y-2">
               <h3 className="font-black text-text-main text-lg">Identity Scan Hub</h3>
@@ -140,9 +140,9 @@ const OPDManagement: React.FC = () => {
               <button
                 onClick={startCamera}
                 disabled={isScanning}
-                className="inline-flex items-center gap-2 bg-text-main text-white px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-slate-800 cursor-pointer shadow-lg transition-all active:scale-95 disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 cursor-pointer shadow-xl transition-all active:scale-95 disabled:opacity-50"
               >
-                <Camera size={16} /> Open Camera
+                <Camera size={18} /> Take Live Photo
               </button>
 
               <input
@@ -155,9 +155,9 @@ const OPDManagement: React.FC = () => {
               />
               <label
                 htmlFor="id-scan"
-                className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-teal-800 cursor-pointer shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-3 bg-medical-gradient text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 cursor-pointer shadow-xl shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
               >
-                {isScanning ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                {isScanning ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
                 {isScanning ? 'AI Extracting...' : 'Upload File'}
               </label>
             </div>
@@ -187,7 +187,7 @@ const OPDManagement: React.FC = () => {
               </button>
               <button
                 onClick={captureAndScan}
-                className="px-8 py-2.5 bg-primary text-white rounded-xl font-bold text-xs uppercase shadow-xl hover:bg-teal-600 transition-colors"
+                className="px-8 py-2.5 bg-primary text-white rounded-xl font-bold text-xs uppercase shadow-xl hover:bg-primary/90 transition-colors"
               >
                 Capture ID
               </button>
@@ -298,7 +298,7 @@ const OPDManagement: React.FC = () => {
           <button
             onClick={handleCheckIn}
             disabled={saving}
-            className="w-full bg-primary text-white font-black py-4 rounded-xl mt-4 hover:bg-teal-800 shadow-xl shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full bg-primary text-white font-black py-4 rounded-xl mt-4 hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {saving ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
             {saving ? 'Registering...' : 'Complete Final Check-In'}

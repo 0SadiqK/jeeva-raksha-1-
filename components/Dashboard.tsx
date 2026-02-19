@@ -79,9 +79,10 @@ const Dashboard: React.FC = () => {
   ];
 
   const StatCard = ({ label, value, subtext, icon, trend, colorClass }: any) => (
-    <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
+    <div className={`bg-white p-6 rounded-[2rem] border ${colorClass?.border || 'border-slate-100'} shadow-sm hover:shadow-xl transition-all group relative overflow-hidden`}>
+      {colorClass?.bg && <div className={`absolute top-0 right-0 w-24 h-24 ${colorClass.bg} opacity-5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2`} />}
       <div className="flex justify-between items-start mb-6">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner bg-hospital-bg`}>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner ${colorClass?.bg || 'bg-hospital-bg'} ${colorClass?.text || 'text-slate-600'}`}>
           {icon}
         </div>
         {trend && (
@@ -136,17 +137,17 @@ const Dashboard: React.FC = () => {
             <p className="text-lg font-black text-primary mt-1">{error ? 'Offline' : 'Optimal'}</p>
           </div>
           <button className="p-3 bg-hospital-bg text-slate-400 rounded-xl hover:text-primary transition-colors">🔄</button>
-          <button className="px-6 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:bg-blue-700 transition-all active:scale-95">Generate Daily Report</button>
+          <button className="px-6 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95">Generate Daily Report</button>
         </div>
       </div>
 
       {/* Primary Clinical KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <StatCard label="Patients Today" value={stats?.patientsToday?.toLocaleString() || '0'} subtext="TOTAL" trend="+12%" icon="👥" />
-        <StatCard label="OPD Waiting" value={stats?.opdWaiting || '0'} subtext="ACTIVE" trend="-8%" icon="⏳" />
-        <StatCard label="IPD Occupancy" value={`${stats?.bedOccupancy || 0}%`} subtext={`${stats?.occupiedBeds || 0} BEDS`} trend="Stable" icon="🛌" />
-        <StatCard label="Emergency Cases" value={String(stats?.emergencyCases || 0).padStart(2, '0')} subtext="LIVE" trend="+2" icon="🚨" />
-        <StatCard label="Total Registered" value={stats?.totalPatients?.toLocaleString() || '0'} subtext="PATIENTS" trend="" icon="📋" />
+        <StatCard label="Patients Today" value={stats?.patientsToday?.toLocaleString() || '0'} subtext="TOTAL" trend="+12%" icon="👥" colorClass={{ bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/20' }} />
+        <StatCard label="OPD Waiting" value={stats?.opdWaiting || '0'} subtext="ACTIVE" trend="-8%" icon="⏳" colorClass={{ bg: 'bg-warning/10', text: 'text-warning', border: 'border-warning/20' }} />
+        <StatCard label="IPD Occupancy" value={`${stats?.bedOccupancy || 0}%`} subtext={`${stats?.occupiedBeds || 0} BEDS`} trend="Stable" icon="🛌" colorClass={{ bg: 'bg-success/10', text: 'text-success', border: 'border-success/20' }} />
+        <StatCard label="Emergency Cases" value={String(stats?.emergencyCases || 0).padStart(2, '0')} subtext="LIVE" trend="+2" icon="🚨" colorClass={{ bg: 'bg-danger/10', text: 'text-danger', border: 'border-danger/20' }} />
+        <StatCard label="Total Registered" value={stats?.totalPatients?.toLocaleString() || '0'} subtext="PATIENTS" trend="" icon="📋" colorClass={{ bg: 'bg-accent/10', text: 'text-accent', border: 'border-accent/20' }} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -286,13 +287,13 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* AI Risk Engine Section */}
-          <div className="bg-slate-900 rounded-[3rem] p-8 text-white relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2" />
+          <div className="bg-medical-gradient rounded-[3rem] p-8 text-white relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2" />
             <div className="relative z-10 space-y-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center text-accent text-xl">✨</div>
+                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white text-xl">✨</div>
                 <div>
-                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">AI Insight Engine</p>
+                  <p className="text-[9px] font-black text-white/50 uppercase tracking-widest leading-none">AI Insight Engine</p>
                   <h3 className="text-lg font-black text-white mt-1">High-Risk Watchlist</h3>
                 </div>
               </div>
@@ -305,21 +306,21 @@ const Dashboard: React.FC = () => {
                         <span className="text-xl">{insight.icon}</span>
                         <span className="text-sm font-black">{insight.patient}</span>
                       </div>
-                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${insight.risk === 'High' ? 'bg-danger/20 text-danger border border-danger/30' : 'bg-amber-400/20 text-amber-400 border border-amber-400/30'
+                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${insight.risk === 'High' ? 'bg-danger/20 text-danger border border-danger/30' : 'bg-warning/20 text-warning border border-warning/30'
                         }`}>
                         {insight.risk} RISK
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 font-medium leading-relaxed">{insight.factor}</p>
-                    <div className="mt-4 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${insight.risk === 'High' ? 'bg-danger w-[84%]' : 'bg-amber-400 w-[42%]'}`} />
+                    <p className="text-xs text-white/70 font-medium leading-relaxed">{insight.factor}</p>
+                    <div className="mt-4 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${insight.risk === 'High' ? 'bg-danger w-[84%]' : 'bg-warning w-[42%]'}`} />
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="p-4 bg-accent/10 border border-accent/20 rounded-2xl">
-                <p className="text-[10px] italic text-accent font-kannada leading-relaxed">
+              <div className="p-4 bg-white/10 border border-white/20 rounded-2xl">
+                <p className="text-[10px] italic text-white/80 font-kannada leading-relaxed">
                   "ಡೇಟಾದಿಂದ ನಿರ್ಣಯಕ್ಕೆ" — Recommendations prioritized based on acuity.
                 </p>
               </div>

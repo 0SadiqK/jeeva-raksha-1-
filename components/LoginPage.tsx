@@ -82,7 +82,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onDemoLogin, error, isLo
         // Pre-fill seeded credentials for the role
         switch (roleId) {
             case 'admin':
-                setEmail('rajesh.kumar@jeevaraksha.in');
+                setEmail('admin@jeevaraksha.in');
                 setPassword('admin123');
                 break;
             case 'doctor':
@@ -90,16 +90,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onDemoLogin, error, isLo
                 setPassword('doctor123');
                 break;
             case 'pharmacist':
-                setEmail('karthik.iyer@jeevaraksha.in');
-                setPassword('pharma123');
+                setEmail('aditi.sharma@jeevaraksha.in');
+                setPassword('doctor123');
                 break;
             case 'patient':
-                setEmail('meera.nair@jeevaraksha.in');
-                setPassword('patient123');
+                setEmail('aditi.sharma@jeevaraksha.in');
+                setPassword('doctor123');
                 break;
             case 'demo':
-                setEmail('rajesh.kumar@jeevaraksha.in');
-                setPassword('admin123'); // Default demo to admin
+                setEmail('admin@jeevaraksha.in');
+                setPassword('admin123');
                 break;
             default:
                 setEmail('');
@@ -265,10 +265,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onDemoLogin, error, isLo
                     from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                .bg-primary { background-color: #0891b2; }
-                .bg-primary-dark { background-color: #0e7490; }
-                .border-primary { border-color: #0891b2; }
-                .text-primary { color: #0891b2; }
+                .bg-primary { background-color: #2563eb; }
+                .bg-primary-dark { background-color: #1d4ed8; }
+                .border-primary { border-color: #2563eb; }
+                .text-primary { color: #2563eb; }
                 .checked-siblings:checked + svg { opacity: 1; }
             `}</style>
         </div>

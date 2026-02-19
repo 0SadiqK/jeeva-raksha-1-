@@ -83,7 +83,7 @@ const EMRManagement: React.FC = () => {
                         <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search records..." className="bg-hospital-input border border-hospital-border rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20 shadow-sm w-64 text-text-main" />
                         <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
                     </div>
-                    <button onClick={() => showToast('info', 'New EMR creation form opening...')} className="px-6 py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all flex items-center gap-2">
+                    <button onClick={() => showToast('info', 'New EMR creation form opening...')} className="px-6 py-2.5 bg-medical-gradient text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all flex items-center gap-2">
                         <Plus size={16} /> New Record
                     </button>
                 </div>
@@ -92,17 +92,19 @@ const EMRManagement: React.FC = () => {
             {/* KPIs */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'Total Records', value: records.length.toLocaleString(), color: 'text-text-main', icon: <Folder size={24} /> },
-                    { label: 'Active Files', value: records.filter(r => r.status === 'Active').length.toString(), color: 'text-primary', icon: <FolderOpen size={24} /> },
-                    { label: 'Digitization', value: `${digitizationPct}%`, color: 'text-success', icon: <Save size={24} /> },
-                    { label: 'Critical Patients', value: records.filter(r => r.status === 'Critical').length.toString().padStart(2, '0'), color: 'text-danger', icon: <Siren size={24} /> },
+                    { label: 'Total Records', value: records.length.toLocaleString(), color: 'text-text-main', icon: <Folder size={20} />, bg: 'bg-slate-100', border: 'border-slate-200' },
+                    { label: 'Active Files', value: records.filter(r => r.status === 'Active').length.toString(), color: 'text-primary', icon: <FolderOpen size={20} />, bg: 'bg-primary/10', border: 'border-primary/20' },
+                    { label: 'Digitization', value: `${digitizationPct}%`, color: 'text-success', icon: <Save size={20} />, bg: 'bg-success/10', border: 'border-success/20' },
+                    { label: 'Critical Patients', value: records.filter(r => r.status === 'Critical').length.toString().padStart(2, '0'), color: 'text-danger', icon: <Siren size={20} />, bg: 'bg-danger/10', border: 'border-danger/20' },
                 ].map(s => (
-                    <div key={s.label} className="bg-hospital-card p-6 rounded-2xl border border-hospital-border shadow-card hover:shadow-card-hover transition-all">
-                        <div className="flex items-center gap-3 mb-3">
-                            <span className={`text-xl ${s.color !== 'text-text-main' ? s.color.replace('text-', 'text-opacity-80 ') : 'text-slate-400'}`}>{s.icon}</span>
+                    <div key={s.label} className={`bg-hospital-card p-6 rounded-2xl border ${s.border} shadow-card hover:shadow-card-hover transition-all group`}>
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.bg} ${s.color} group-hover:scale-110 transition-transform`}>
+                                {s.icon}
+                            </div>
                             <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{s.label}</p>
                         </div>
-                        <p className={`text-3xl font-black ${s.color} tracking-tighter`}>{s.value}</p>
+                        <p className={`text-2xl font-black ${s.color} tracking-tighter`}>{s.value}</p>
                     </div>
                 ))}
             </div>
