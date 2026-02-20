@@ -90,12 +90,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onDemoLogin, error, isLo
                 setPassword('doctor123');
                 break;
             case 'pharmacist':
-                setEmail('aditi.sharma@jeevaraksha.in');
-                setPassword('doctor123');
+                setEmail('ravi.pharm@jeevaraksha.in');
+                setPassword('pharma123');
                 break;
             case 'patient':
-                setEmail('aditi.sharma@jeevaraksha.in');
-                setPassword('doctor123');
+                setEmail('ramesh.gowda@jeevaraksha.in');
+                setPassword('patient123');
                 break;
             case 'demo':
                 setEmail('admin@jeevaraksha.in');
