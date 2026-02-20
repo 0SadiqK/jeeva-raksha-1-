@@ -43,6 +43,7 @@ const logPath = path.resolve(projectRoot, 'debug_root.log');
 
 import { authenticate, demoGuard } from './middleware/authMiddleware.js';
 import { healthCheck, pool, getPoolStats, getUptime, startedAt } from './db.js';
+import { cache, cacheMiddleware, invalidateOn } from './cache.js';
 
 import authRouter from './routes/auth.js';
 import patientsRouter from './routes/patients.js';
@@ -124,16 +125,17 @@ app.use(authenticate);
 app.use(demoGuard);
 
 // ─── Routes ─────────────────────────────────────────────────
-app.use('/api/patients', patientsRouter);
-app.use('/api/doctors', doctorsRouter);
-app.use('/api/appointments', appointmentsRouter);
-app.use('/api/visits', visitsRouter);
-app.use('/api/labs', labsRouter);
-app.use('/api/pharmacy', pharmacyRouter);
-app.use('/api/billing', billingRouter);
-app.use('/api/dashboard', dashboardRouter);
-app.use('/api/audit-logs', auditRouter);
-app.use('/api', bedsRouter);
+// Cached read-heavy routes with auto-invalidation on mutations
+app.use('/api/patients', cacheMiddleware(30000, 'patients'), invalidateOn('patients'), patientsRouter);
+app.use('/api/doctors', cacheMiddleware(60000, 'doctors'), invalidateOn('doctors'), doctorsRouter);
+app.use('/api/appointments', cacheMiddleware(30000, 'appointments'), invalidateOn('appointments'), appointmentsRouter);
+app.use('/api/visits', cacheMiddleware(30000, 'visits'), invalidateOn('visits'), visitsRouter);
+app.use('/api/labs', cacheMiddleware(30000, 'labs'), invalidateOn('labs'), labsRouter);
+app.use('/api/pharmacy', cacheMiddleware(30000, 'pharmacy'), invalidateOn('pharmacy'), pharmacyRouter);
+app.use('/api/billing', cacheMiddleware(30000, 'billing'), invalidateOn('billing'), billingRouter);
+app.use('/api/dashboard', cacheMiddleware(60000, 'dashboard'), dashboardRouter);  // read-only, no invalidation needed
+app.use('/api/audit-logs', cacheMiddleware(30000, 'audit'), invalidateOn('audit'), auditRouter);
+app.use('/api', cacheMiddleware(60000, 'beds'), invalidateOn('beds'), bedsRouter);
 
 // ─── Health check (enhanced, under /api) ────────────────────
 app.get('/api/health', async (_req, res) => {
@@ -179,6 +181,7 @@ app.get('/api/health', async (_req, res) => {
             unit: 'MB',
         },
         pool: getPoolStats(),
+        cache: cache.getStats(),
     });
 });
 
@@ -253,6 +256,7 @@ const server = app.listen(PORT, () => {
     console.log(`[SERVER]   API Health: http://localhost:${PORT}/api/health`);
     console.log(`[SERVER]   Rate Limit: 100 req/15min (API), 20/15min (Auth)`);
     console.log(`[SERVER]   Pool:       max=20, timeout=5s, stmt_timeout=10s`);
+    console.log(`[SERVER]   Cache:      TTL=30-60s, auto-invalidate on mutations`);
     console.log(`[SERVER]   Env:        ${process.env.NODE_ENV || 'development'}`);
     console.log(`[SERVER] ═══════════════════════════════════════════\n`);
 });
