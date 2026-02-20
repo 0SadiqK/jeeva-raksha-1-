@@ -167,26 +167,32 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onDemoLogin, error, isLo
 
                             <form onSubmit={handleSubmit} className="space-y-5">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
+                                    <label htmlFor="email" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
                                     <input
+                                        id="email"
+                                        name="email"
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="user@hospital.com"
                                         required
+                                        autoComplete="email"
                                         className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium placeholder:text-slate-300"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password</label>
+                                    <label htmlFor="password" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password</label>
                                     <div className="relative">
                                         <input
+                                            id="password"
+                                            name="password"
                                             type={showPassword ? 'text' : 'password'}
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="••••••••"
                                             required
+                                            autoComplete="current-password"
                                             className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium placeholder:text-slate-300"
                                         />
                                         <button
@@ -209,9 +215,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onDemoLogin, error, isLo
                                 </div>
 
                                 <div className="flex items-center">
-                                    <label className="flex items-center gap-3 cursor-pointer group">
+                                    <label htmlFor="remember" className="flex items-center gap-3 cursor-pointer group">
                                         <div className="relative flex items-center">
                                             <input
+                                                id="remember"
+                                                name="remember"
                                                 type="checkbox"
                                                 checked={remember}
                                                 onChange={(e) => setRemember(e.target.checked)}
