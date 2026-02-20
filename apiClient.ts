@@ -1,6 +1,37 @@
-// Jeeva Raksha — Frontend API Client v2.1
+// Jeeva Raksha — Frontend API Client v2.3 (with Client Cache)
 
 const BASE = (import.meta as any).env?.VITE_API_URL || '/api';
+
+// ─── Client-side GET cache ───────────────────────────────────
+const clientCache = new Map<string, { data: any; expiresAt: number }>();
+const CACHE_TTL = 15000; // 15 seconds for client-side
+
+function getCached(url: string): any | null {
+    const entry = clientCache.get(url);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) {
+        clientCache.delete(url);
+        return null;
+    }
+    return entry.data;
+}
+
+function setCache(url: string, data: any) {
+    clientCache.set(url, { data, expiresAt: Date.now() + CACHE_TTL });
+}
+
+/** Invalidate cache entries matching a prefix */
+function invalidateCache(prefix?: string) {
+    if (!prefix) {
+        clientCache.clear();
+        return;
+    }
+    for (const key of clientCache.keys()) {
+        if (key.startsWith(prefix)) {
+            clientCache.delete(key);
+        }
+    }
+}
 
 // ─── Token management ────────────────────────────────────────
 function getToken(): string | null {
@@ -18,8 +49,16 @@ function getHeaders(): Record<string, string> {
 
 // ─── Base request ────────────────────────────────────────────
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
+    const method = options?.method || 'GET';
+
+    // Check client cache for GET requests
+    if (method === 'GET') {
+        const cached = getCached(url);
+        if (cached) return cached as T;
+    }
+
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    const id = setTimeout(() => controller.abort(), 30000);
 
     try {
         const res = await fetch(`${BASE}${url}`, {
@@ -31,7 +70,6 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 
         if (!res.ok) {
             const err = await res.json().catch(() => ({ error: res.statusText }));
-            // Auto-logout on 401
             if (res.status === 401 && err.expired) {
                 localStorage.removeItem('jrk_token');
                 sessionStorage.removeItem('jrk_token');
@@ -39,7 +77,26 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
             }
             throw new Error(err.error || err.message || `API Error: ${res.status}`);
         }
-        return res.json();
+
+        const data = await res.json();
+
+        // Cache GET responses
+        if (method === 'GET') {
+            setCache(url, data);
+        }
+
+        // Invalidate related caches on mutations
+        if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)) {
+            // Extract resource path (e.g., '/patients/123' → '/patients')
+            const parts = url.split('/').filter(Boolean);
+            if (parts.length > 0) {
+                invalidateCache(`/${parts[0]}`);
+            }
+            // Also invalidate dashboard (it aggregates data)
+            invalidateCache('/dashboard');
+        }
+
+        return data;
     } catch (err: any) {
         clearTimeout(id);
         if (err.name === 'AbortError') {
@@ -51,7 +108,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 
 // ─── API ─────────────────────────────────────────────────────
 export const api = {
-    // Auth
+    // Auth (never cached)
     auth: {
         login: (email: string, password: string) =>
             request<any>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
@@ -146,6 +203,9 @@ export const api = {
 
     // Health
     healthCheck: () => request<any>('/health'),
+
+    // Cache management
+    clearCache: () => invalidateCache(),
 };
 
 export default api;
