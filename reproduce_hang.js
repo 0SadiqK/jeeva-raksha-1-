@@ -1,6 +1,6 @@
 // using global fetch
 
-const BASE = 'http://localhost:3000/api';
+const BASE = process.env.API_BASE || 'http://localhost:3000/api';
 
 async function run() {
     console.log('Testing Vite Proxy via http://localhost:3000/api ...');
