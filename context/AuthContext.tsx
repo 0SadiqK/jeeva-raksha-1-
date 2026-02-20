@@ -222,6 +222,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Production default fallbacks
     'admin@jeevaraksha.in': 'admin123',
     'aditi.sharma@jeevaraksha.in': 'doctor123',
+    'ravi.pharm@jeevaraksha.in': 'pharma123',
+    'ramesh.gowda@jeevaraksha.in': 'patient123',
   };
 
   const EMAIL_TO_ROLE: Record<string, string> = {
@@ -233,6 +235,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Production default fallbacks
     'admin@jeevaraksha.in': 'admin',
     'aditi.sharma@jeevaraksha.in': 'doctor',
+    'ravi.pharm@jeevaraksha.in': 'pharmacist',
+    'ramesh.gowda@jeevaraksha.in': 'patient',
   };
 
   // ─── Login ─────────────────────────────────────────────────
