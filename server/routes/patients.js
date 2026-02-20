@@ -14,7 +14,7 @@ const router = Router();
 const logToFile = (msg) => {
     const entry = `[${new Date().toISOString()}] ${msg}\n`;
     try {
-        fs.appendFileSync('debug_root.log', entry);
+        fs.appendFile('debug_root.log', entry, () => { });
     } catch (e) {
         console.error('Failed to write to debug log:', e);
     }
