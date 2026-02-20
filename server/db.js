@@ -7,7 +7,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// ─── Environment validation ─────────────────────────────────
 const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction && !process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL environment variable is missing. Cannot start in production without it.');
+}
+if (!process.env.DATABASE_URL && !process.env.DB_HOST) {
+    console.warn('[DB] WARNING: Neither DATABASE_URL nor DB_HOST is set. Using default localhost connection.');
+}
 
 const connectionConfig = process.env.DATABASE_URL
     ? {
