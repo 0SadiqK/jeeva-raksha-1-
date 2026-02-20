@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:5000/api';
+const BASE = process.env.API_BASE || 'http://localhost:5000/api';
 
 async function run() {
     console.log('1. Logging in...');
