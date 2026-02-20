@@ -189,6 +189,18 @@ app.get('/api/health', async (_req, res) => {
     });
 });
 
+// ─── Readiness state ────────────────────────────────────────
+let isReady = false;
+
+// Readiness probe (Railway / k8s — separate from liveness /health)
+app.get('/ready', (_req, res) => {
+    if (isReady) {
+        res.json({ status: 'ready', uptime: getUptime() });
+    } else {
+        res.status(503).json({ status: 'starting', message: 'Server is still initializing' });
+    }
+});
+
 // ─── Serve Frontend (Production) ─────────────────────────────
 const distPath = path.resolve(projectRoot, 'dist');
 if (fs.existsSync(distPath)) {
@@ -249,18 +261,6 @@ async function shutdown(signal) {
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
-
-// ─── Readiness state ────────────────────────────────────────
-let isReady = false;
-
-// Readiness probe (Railway / k8s — separate from liveness /health)
-app.get('/ready', (_req, res) => {
-    if (isReady) {
-        res.json({ status: 'ready', uptime: getUptime() });
-    } else {
-        res.status(503).json({ status: 'starting', message: 'Server is still initializing' });
-    }
-});
 
 // ─── Startup readiness sequence ─────────────────────────────
 async function startupChecks() {
