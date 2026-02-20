@@ -1,7 +1,7 @@
-// ─── Jeeva Raksha — Database Service Layer ────────────────────
-// Enhanced PostgreSQL connection pool with transaction support,
-// health checks, and structured error handling.
-// ──────────────────────────────────────────────────────────────
+// ─── Jeeva Raksha — Database Service Layer (Observable) ──────
+// Centralized PostgreSQL pool with monitoring, auto-recovery,
+// transaction support, health checks, and structured logging.
+// ─────────────────────────────────────────────────────────────
 import pg from 'pg';
 import dotenv from 'dotenv';
 
@@ -35,17 +35,46 @@ const pool = new pg.Pool({
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
-    statement_timeout: 10000,   // Kill queries running longer than 10s
-    query_timeout: 10000,       // Client-side query timeout
+    statement_timeout: 10000,
+    query_timeout: 10000,
 });
 
-pool.on('error', (err) => {
-    console.error('[DB] Unexpected pool error:', err);
+// ─── Pool event handlers (structured logging) ───────────────
+pool.on('error', (err, client) => {
+    console.error('[DB] Pool error (client will be removed):', err.message);
 });
 
-pool.on('connect', () => {
-    console.log('[DB] New client connected to pool');
+pool.on('connect', (client) => {
+    console.log(`[DB] Client connected | pool: total=${pool.totalCount} idle=${pool.idleCount} waiting=${pool.waitingCount}`);
 });
+
+pool.on('remove', () => {
+    console.log(`[DB] Client removed   | pool: total=${pool.totalCount} idle=${pool.idleCount} waiting=${pool.waitingCount}`);
+});
+
+// ─── Pool stats monitoring (every 60s) ──────────────────────
+const POOL_MONITOR_INTERVAL = 60000;
+const poolMonitor = setInterval(() => {
+    const stats = {
+        total: pool.totalCount,
+        idle: pool.idleCount,
+        waiting: pool.waitingCount,
+    };
+    // Only log if pool is active or has waiting clients
+    if (stats.total > 0 || stats.waiting > 0) {
+        console.log(`[DB] Pool stats: total=${stats.total} idle=${stats.idle} waiting=${stats.waiting}`);
+    }
+    // Warn on abnormal conditions
+    if (stats.waiting > 5) {
+        console.warn(`[DB] WARNING: ${stats.waiting} clients waiting for connections — possible pool exhaustion`);
+    }
+    if (stats.total >= 20 && stats.idle === 0) {
+        console.warn(`[DB] WARNING: Pool at max capacity (${stats.total}) with 0 idle — all connections in use`);
+    }
+}, POOL_MONITOR_INTERVAL);
+
+// Don't block process exit
+poolMonitor.unref();
 
 // ─── Query wrapper with logging ──────────────────────────────
 async function query(text, params) {
@@ -58,25 +87,15 @@ async function query(text, params) {
         }
         return result;
     } catch (err) {
-        console.error('[DB] Query error:', err.message);
+        const duration = Date.now() - start;
+        console.error(`[DB] Query error (${duration}ms):`, err.message);
         console.error('[DB] Query text:', text.substring(0, 200));
+        if (err.stack) console.error('[DB] Stack:', err.stack.split('\n').slice(0, 3).join('\n'));
         throw err;
     }
 }
 
 // ─── Transaction helper ──────────────────────────────────────
-// Usage:
-//   const client = await getClient();
-//   try {
-//       await client.query('BEGIN');
-//       // ... do work ...
-//       await client.query('COMMIT');
-//   } catch (err) {
-//       await client.query('ROLLBACK');
-//       throw err;
-//   } finally {
-//       client.release();
-//   }
 async function getClient() {
     const client = await pool.connect();
     return client;
@@ -85,12 +104,6 @@ async function getClient() {
 /**
  * Run a function within a database transaction.
  * Automatically handles BEGIN, COMMIT, and ROLLBACK.
- *
- * Usage:
- *   const result = await withTransaction(async (client) => {
- *       await client.query('INSERT INTO ...');
- *       return { success: true };
- *   });
  */
 async function withTransaction(fn) {
     const client = await pool.connect();
@@ -107,7 +120,9 @@ async function withTransaction(fn) {
     }
 }
 
-// ─── Health check ────────────────────────────────────────────
+// ─── Health check (enhanced with pool stats + uptime) ────────
+const startedAt = new Date();
+
 async function healthCheck() {
     try {
         const result = await pool.query('SELECT NOW() as time, current_database() as database');
@@ -119,16 +134,37 @@ async function healthCheck() {
                 total: pool.totalCount,
                 idle: pool.idleCount,
                 waiting: pool.waitingCount,
+                max: 20,
             },
         };
     } catch (err) {
         return {
             status: 'disconnected',
             error: err.message,
+            pool: {
+                total: pool.totalCount,
+                idle: pool.idleCount,
+                waiting: pool.waitingCount,
+                max: 20,
+            },
         };
     }
 }
 
+// ─── Pool stats getter (for external monitoring) ─────────────
+function getPoolStats() {
+    return {
+        total: pool.totalCount,
+        idle: pool.idleCount,
+        waiting: pool.waitingCount,
+        max: 20,
+    };
+}
+
+function getUptime() {
+    return Math.floor((Date.now() - startedAt.getTime()) / 1000);
+}
+
 // ─── Exports ─────────────────────────────────────────────────
 export default pool;
-export { pool, query, getClient, withTransaction, healthCheck };
+export { pool, query, getClient, withTransaction, healthCheck, getPoolStats, getUptime, startedAt };
