@@ -99,13 +99,15 @@ app.use((req, _res, next) => {
 // ─── Root health check (Railway / load balancer) ────────────
 app.get('/health', async (_req, res) => {
     const dbHealth = await healthCheck();
+    const redisHealth = await cache.getRedisHealth();
     const mem = process.memoryUsage();
     res.json({
         status: dbHealth.status === 'connected' ? 'ok' : 'degraded',
-        version: '2.4.0',
+        version: '2.5.0',
         uptime: getUptime(),
         timestamp: new Date().toISOString(),
         database: dbHealth,
+        redis: redisHealth,
         memory: {
             rss: Math.round(mem.rss / 1024 / 1024),
             heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
@@ -140,6 +142,7 @@ app.use('/api', cacheMiddleware(60000, 'beds'), invalidateOn('beds'), bedsRouter
 // ─── Health check (enhanced, under /api) ────────────────────
 app.get('/api/health', async (_req, res) => {
     const dbHealth = await healthCheck();
+    const redisHealth = await cache.getRedisHealth();
     const mem = process.memoryUsage();
 
     let authSchemaOk = false;
@@ -164,7 +167,7 @@ app.get('/api/health', async (_req, res) => {
 
     res.json({
         status: 'ok',
-        version: '2.4.0',
+        version: '2.5.0',
         uptime: getUptime(),
         startedAt: startedAt.toISOString(),
         timestamp: new Date().toISOString(),
@@ -182,6 +185,7 @@ app.get('/api/health', async (_req, res) => {
         },
         pool: getPoolStats(),
         cache: cache.getStats(),
+        redis: redisHealth,
     });
 });
 
