@@ -1,4 +1,4 @@
-// ─── Jeeva Raksha — Backend Entry ────────────────────────────
+// ─── Jeeva Raksha — Backend Entry (Enterprise-Grade) ─────────
 // dotenv MUST load FIRST, before any module that reads env vars
 // ─────────────────────────────────────────────────────────────
 import dotenv from 'dotenv';
@@ -8,12 +8,29 @@ dotenv.config();
 if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL environment variable is missing. Cannot start in production without it.');
 }
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET must be set in production. Do NOT use a default secret.');
+}
 if (!process.env.DATABASE_URL && !process.env.DB_HOST) {
     console.warn('[WARN] Neither DATABASE_URL nor DB_HOST is set. Using default localhost connection.');
 }
 
+// ─── Global crash handlers ──────────────────────────────────
+process.on('unhandledRejection', (reason) => {
+    console.error('[Unhandled Rejection]', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('[Uncaught Exception]', err);
+    // In production, exit after logging — PM2/Railway will restart
+    if (process.env.NODE_ENV === 'production') {
+        process.exit(1);
+    }
+});
+
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -41,19 +58,40 @@ import auditRouter from './routes/audit.js';
 const app = express();
 const PORT = process.env.PORT || process.env.API_PORT || 5000;
 
+// ─── Security: Trust proxy (Railway uses reverse proxy) ─────
+app.set('trust proxy', 1);
+
 // ─── Middleware ──────────────────────────────────────────────
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// Request logging middleware
+// ─── Rate limiting (brute-force / abuse protection) ─────────
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,  // 15 minutes
+    max: 100,                   // 100 requests per window per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests. Please try again later.' },
+});
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,  // 15 minutes
+    max: 20,                    // 20 login attempts per window per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many login attempts. Please try again later.' },
+});
+
+app.use('/api', apiLimiter);
+
+// Request logging middleware (non-blocking write)
 app.use((req, _res, next) => {
     const user = req.user?.id || 'anon';
     const demo = req.user?.isDemo ? ' [DEMO]' : '';
     const msg = `[API] ${req.method} ${req.url}  (user: ${user}${demo})`;
     console.log(msg);
-    try {
-        fs.appendFileSync(logPath, `[${new Date().toISOString()}] ${msg}\n`);
-    } catch (e) { }
+    // Non-blocking file write to prevent I/O stalls
+    fs.appendFile(logPath, `[${new Date().toISOString()}] ${msg}\n`, () => { });
     next();
 });
 
@@ -68,7 +106,8 @@ app.get('/health', async (_req, res) => {
 });
 
 // Auth routes BEFORE authentication middleware (login doesn't need auth)
-app.use('/api/auth', authRouter);
+// Apply stricter rate limit to auth routes
+app.use('/api/auth', authLimiter, authRouter);
 
 // Attach user info from JWT or headers on every request
 app.use(authenticate);
@@ -116,7 +155,7 @@ app.get('/api/health', async (_req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        version: '2.2.0',
+        version: '2.3.0',
         database: dbHealth,
         auth_schema: {
             ready: authSchemaOk,
@@ -173,11 +212,12 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 
 // ─── Start ──────────────────────────────────────────────────
 const server = app.listen(PORT, () => {
-    console.log(`\n🏥 Jeeva Raksha API Server v2.2 (Production-Grade)`);
+    console.log(`\n🏥 Jeeva Raksha API Server v2.3 (Enterprise-Grade)`);
     console.log(`   Running on:  http://localhost:${PORT}`);
     console.log(`   Auth:        http://localhost:${PORT}/api/auth/login`);
     console.log(`   Health:      http://localhost:${PORT}/api/health`);
     console.log(`   Root Health: http://localhost:${PORT}/health`);
+    console.log(`   Rate Limit:  100 req/15min (API), 20 req/15min (Auth)`);
     console.log(`   Environment: ${process.env.NODE_ENV || 'development'}\n`);
 });
 
