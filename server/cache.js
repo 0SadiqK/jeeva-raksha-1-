@@ -1,136 +1,269 @@
-// ─── Jeeva Raksha — Server-side Response Cache ───────────────
-// TTL-based in-memory cache with automatic invalidation.
-// Designed for read-heavy API endpoints.
+// ─── Jeeva Raksha — Distributed Cache Layer ─────────────────
+// Redis-backed caching with automatic in-memory fallback.
+// When Redis is available: distributed cache across instances.
+// When Redis is down: seamless fallback to local Map cache.
 // ─────────────────────────────────────────────────────────────
+import Redis from 'ioredis';
 
-class ResponseCache {
-    constructor() {
-        /** @type {Map<string, { data: any, expiresAt: number, hitCount: number }>} */
-        this.store = new Map();
-        this.stats = { hits: 0, misses: 0, invalidations: 0 };
+const REDIS_URL = process.env.REDIS_URL || null;
+const CACHE_PREFIX = 'jrk:';
 
-        // Cleanup expired entries every 60s
-        this._cleanup = setInterval(() => {
-            const now = Date.now();
-            let cleaned = 0;
-            for (const [key, entry] of this.store) {
-                if (now > entry.expiresAt) {
-                    this.store.delete(key);
-                    cleaned++;
-                }
+// ─── Redis client (lazy connect, never blocks startup) ──────
+let redis = null;
+let redisReady = false;
+
+if (REDIS_URL) {
+    redis = new Redis(REDIS_URL, {
+        maxRetriesPerRequest: 1,
+        retryStrategy: (times) => {
+            if (times > 5) {
+                console.warn('[CACHE] Redis reconnect failed 5 times — giving up, using in-memory fallback');
+                return null; // stop retrying
             }
-            if (cleaned > 0) {
-                console.log(`[CACHE] Cleaned ${cleaned} expired entries. Active: ${this.store.size}`);
-            }
-        }, 60000);
-        this._cleanup.unref();
+            return Math.min(times * 500, 3000);
+        },
+        lazyConnect: false,
+        connectTimeout: 5000,
+        enableReadyCheck: true,
+    });
+
+    redis.on('ready', () => {
+        redisReady = true;
+        console.log('[CACHE] Redis connected ✓');
+    });
+
+    redis.on('error', (err) => {
+        if (redisReady) {
+            console.error('[CACHE] Redis error:', err.message);
+        }
+        redisReady = false;
+    });
+
+    redis.on('close', () => {
+        redisReady = false;
+        console.log('[CACHE] Redis disconnected');
+    });
+
+    redis.on('reconnecting', () => {
+        console.log('[CACHE] Redis reconnecting...');
+    });
+} else {
+    console.log('[CACHE] No REDIS_URL set — using in-memory cache (single-instance mode)');
+}
+
+// ─── In-memory fallback store ────────────────────────────────
+const memStore = new Map();
+
+// ─── Stats ───────────────────────────────────────────────────
+const stats = { hits: 0, misses: 0, invalidations: 0, errors: 0 };
+
+// Cleanup expired in-memory entries every 60s
+const cleanupTimer = setInterval(() => {
+    const now = Date.now();
+    let cleaned = 0;
+    for (const [key, entry] of memStore) {
+        if (now > entry.expiresAt) {
+            memStore.delete(key);
+            cleaned++;
+        }
     }
+    if (cleaned > 0) {
+        console.log(`[CACHE] Cleaned ${cleaned} expired in-memory entries. Active: ${memStore.size}`);
+    }
+}, 60000);
+cleanupTimer.unref();
 
-    /**
-     * Get cached value. Returns null if expired or missing.
-     */
-    get(key) {
-        const entry = this.store.get(key);
-        if (!entry) {
-            this.stats.misses++;
+// ─── Cache API ───────────────────────────────────────────────
+
+/**
+ * Get cached value. Redis first, fallback to in-memory.
+ */
+async function get(key) {
+    const fullKey = CACHE_PREFIX + key;
+
+    // Try Redis
+    if (redisReady && redis) {
+        try {
+            const raw = await redis.get(fullKey);
+            if (raw) {
+                stats.hits++;
+                return JSON.parse(raw);
+            }
+            stats.misses++;
             return null;
+        } catch (err) {
+            stats.errors++;
+            // Fall through to in-memory
         }
-        if (Date.now() > entry.expiresAt) {
-            this.store.delete(key);
-            this.stats.misses++;
-            return null;
-        }
-        this.stats.hits++;
-        entry.hitCount++;
-        return entry.data;
     }
 
-    /**
-     * Set cached value with TTL in milliseconds.
-     */
-    set(key, data, ttlMs = 30000) {
-        this.store.set(key, {
-            data,
-            expiresAt: Date.now() + ttlMs,
-            hitCount: 0,
-        });
+    // Fallback: in-memory
+    const entry = memStore.get(fullKey);
+    if (!entry) {
+        stats.misses++;
+        return null;
+    }
+    if (Date.now() > entry.expiresAt) {
+        memStore.delete(fullKey);
+        stats.misses++;
+        return null;
+    }
+    stats.hits++;
+    return entry.data;
+}
+
+/**
+ * Set cached value with TTL (milliseconds).
+ */
+async function set(key, data, ttlMs = 30000) {
+    const fullKey = CACHE_PREFIX + key;
+    const ttlSec = Math.ceil(ttlMs / 1000);
+
+    // Write to Redis
+    if (redisReady && redis) {
+        try {
+            await redis.set(fullKey, JSON.stringify(data), 'EX', ttlSec);
+            return;
+        } catch (err) {
+            stats.errors++;
+            // Fall through to in-memory
+        }
     }
 
-    /**
-     * Invalidate all entries matching a prefix.
-     * e.g. invalidatePrefix('/api/patients') clears all patient cache entries.
-     */
-    invalidatePrefix(prefix) {
-        let count = 0;
-        for (const key of this.store.keys()) {
-            if (key.startsWith(prefix)) {
-                this.store.delete(key);
-                count++;
+    // Fallback: in-memory
+    memStore.set(fullKey, {
+        data,
+        expiresAt: Date.now() + ttlMs,
+    });
+}
+
+/**
+ * Invalidate all entries matching a prefix.
+ */
+async function invalidatePrefix(prefix) {
+    const fullPrefix = CACHE_PREFIX + prefix;
+    let count = 0;
+
+    // Invalidate in Redis
+    if (redisReady && redis) {
+        try {
+            const keys = await redis.keys(`${fullPrefix}*`);
+            if (keys.length > 0) {
+                await redis.del(...keys);
+                count = keys.length;
             }
-        }
-        if (count > 0) {
-            this.stats.invalidations += count;
-            console.log(`[CACHE] Invalidated ${count} entries matching '${prefix}'`);
+        } catch (err) {
+            stats.errors++;
         }
     }
 
-    /**
-     * Clear entire cache.
-     */
-    clear() {
-        const size = this.store.size;
-        this.store.clear();
-        console.log(`[CACHE] Cleared all ${size} entries`);
+    // Also invalidate in-memory (might have fallback entries)
+    for (const key of memStore.keys()) {
+        if (key.startsWith(fullPrefix)) {
+            memStore.delete(key);
+            count++;
+        }
     }
 
-    /**
-     * Get cache statistics.
-     */
-    getStats() {
-        const total = this.stats.hits + this.stats.misses;
-        return {
-            entries: this.store.size,
-            hits: this.stats.hits,
-            misses: this.stats.misses,
-            hitRate: total > 0 ? `${Math.round((this.stats.hits / total) * 100)}%` : 'N/A',
-            invalidations: this.stats.invalidations,
-        };
+    if (count > 0) {
+        stats.invalidations += count;
+        console.log(`[CACHE] Invalidated ${count} entries matching '${prefix}'`);
     }
 }
 
-// Singleton instance
-const cache = new ResponseCache();
+/**
+ * Clear entire cache.
+ */
+async function clear() {
+    if (redisReady && redis) {
+        try {
+            const keys = await redis.keys(`${CACHE_PREFIX}*`);
+            if (keys.length > 0) await redis.del(...keys);
+            console.log(`[CACHE] Cleared ${keys.length} Redis entries`);
+        } catch (err) {
+            stats.errors++;
+        }
+    }
+    const memSize = memStore.size;
+    memStore.clear();
+    console.log(`[CACHE] Cleared ${memSize} in-memory entries`);
+}
 
 /**
- * Express middleware: cache GET responses.
- * @param {number} ttlMs - Time-to-live in milliseconds (default: 30 seconds)
- * @param {string} [prefix] - Cache key prefix for invalidation grouping
+ * Get cache statistics + backend info.
+ */
+function getStats() {
+    const total = stats.hits + stats.misses;
+    return {
+        backend: redisReady ? 'redis' : 'memory',
+        entries: memStore.size,
+        hits: stats.hits,
+        misses: stats.misses,
+        hitRate: total > 0 ? `${Math.round((stats.hits / total) * 100)}%` : 'N/A',
+        invalidations: stats.invalidations,
+        errors: stats.errors,
+    };
+}
+
+/**
+ * Get Redis health status.
+ */
+async function getRedisHealth() {
+    if (!REDIS_URL) {
+        return { status: 'not_configured', backend: 'memory' };
+    }
+    if (!redisReady || !redis) {
+        return { status: 'disconnected', backend: 'memory_fallback', url: '***' };
+    }
+    try {
+        const pong = await redis.ping();
+        const info = await redis.info('memory');
+        const memMatch = info.match(/used_memory_human:(\S+)/);
+        return {
+            status: 'connected',
+            backend: 'redis',
+            ping: pong,
+            memory: memMatch ? memMatch[1] : 'unknown',
+        };
+    } catch (err) {
+        return { status: 'error', backend: 'memory_fallback', error: err.message };
+    }
+}
+
+// ─── Export cache object (same API as before) ────────────────
+const cache = { get, set, invalidatePrefix, clear, getStats, getRedisHealth };
+
+// ─── Express middleware (unchanged interface) ────────────────
+
+/**
+ * Cache GET responses with TTL.
  */
 function cacheMiddleware(ttlMs = 30000, prefix) {
-    return (req, res, next) => {
-        // Only cache GET requests
-        if (req.method !== 'GET') {
-            return next();
-        }
+    return async (req, res, next) => {
+        if (req.method !== 'GET') return next();
 
         const cacheKey = prefix
             ? `${prefix}:${req.originalUrl}`
             : req.originalUrl;
 
-        const cached = cache.get(cacheKey);
-        if (cached) {
-            res.set('X-Cache', 'HIT');
-            return res.json(cached);
+        try {
+            const cached = await cache.get(cacheKey);
+            if (cached) {
+                res.set('X-Cache', 'HIT');
+                res.set('X-Cache-Backend', redisReady ? 'redis' : 'memory');
+                return res.json(cached);
+            }
+        } catch {
+            // Cache miss, continue to handler
         }
 
-        // Intercept res.json to cache the response
         const originalJson = res.json.bind(res);
         res.json = (data) => {
-            // Only cache successful responses
             if (res.statusCode >= 200 && res.statusCode < 300) {
-                cache.set(cacheKey, data, ttlMs);
+                cache.set(cacheKey, data, ttlMs).catch(() => { });
             }
             res.set('X-Cache', 'MISS');
+            res.set('X-Cache-Backend', redisReady ? 'redis' : 'memory');
             return originalJson(data);
         };
 
@@ -139,17 +272,14 @@ function cacheMiddleware(ttlMs = 30000, prefix) {
 }
 
 /**
- * Express middleware: invalidate cache on mutations.
- * Place AFTER route handlers that modify data.
- * @param {...string} prefixes - Cache key prefixes to invalidate
+ * Invalidate cache on mutations.
  */
 function invalidateOn(...prefixes) {
     return (req, res, next) => {
         if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method)) {
-            // Invalidate after response is sent
             const originalJson = res.json.bind(res);
             res.json = (data) => {
-                prefixes.forEach(p => cache.invalidatePrefix(p));
+                prefixes.forEach(p => cache.invalidatePrefix(p).catch(() => { }));
                 return originalJson(data);
             };
         }
