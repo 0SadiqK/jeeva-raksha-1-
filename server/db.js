@@ -35,6 +35,8 @@ const pool = new pg.Pool({
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
+    statement_timeout: 10000,   // Kill queries running longer than 10s
+    query_timeout: 10000,       // Client-side query timeout
 });
 
 pool.on('error', (err) => {
