@@ -1,42 +1,55 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+
+// ─── Eagerly loaded (always needed) ─────────────────────────
 import Sidebar from './components/Sidebar.tsx';
-import Home from './components/Home.tsx';
 import LandingPage from './components/LandingPage.tsx';
-import Dashboard from './components/Dashboard.tsx';
-import OPDManagement from './components/OPDManagement.tsx';
-import IPDManagement from './components/IPDManagement.tsx';
-import Emergency from './components/Emergency.tsx';
-import OTManagement from './components/OTManagement.tsx';
-import DoctorPad from './components/DoctorPad.tsx';
-import Laboratory from './components/LabAnalytics.tsx';
-import Radiology from './components/Radiology.tsx';
-import BedManagement from './components/BedManagement.tsx';
-import BillingInventory from './components/BillingInventory.tsx';
-import Reports from './components/Reports.tsx';
+import LoginPage from './components/LoginPage.tsx';
 import Footer from './components/Footer.tsx';
 import LanguageToggle from './components/LanguageToggle.tsx';
-import Patients from './components/Patients.tsx';
-import PatientPortal from './components/PatientPortal.tsx';
-import EmergencyOverride from './components/EmergencyOverride.tsx';
-import EMRManagement from './components/EMRManagement.tsx';
-import PharmacyManagement from './components/PharmacyManagement.tsx';
-import InventoryManagement from './components/InventoryManagement.tsx';
-import InsuranceManagement from './components/InsuranceManagement.tsx';
-import HRManagement from './components/HRManagement.tsx';
-import QualityManagement from './components/QualityManagement.tsx';
-import DeviceIntegrations from './components/DeviceIntegrations.tsx';
-import GovtIntegrations from './components/GovtIntegrations.tsx';
-import LoginPage from './components/LoginPage.tsx';
 import { LanguageProvider, useLanguage } from './context/LanguageContext.tsx';
 import { AuthProvider, useAuth, ROLES, ROLE_DEFAULT_VIEW } from './context/AuthContext.tsx';
 import { ToastProvider } from './context/ToastContext.tsx';
 import { ViewType } from './types.ts';
 import { Eye, LogOut, AlertTriangle, Hospital, Loader2, Home as HomeIcon } from 'lucide-react';
 
+// ─── Lazy loaded (code-split per module) ────────────────────
+const Home = lazy(() => import('./components/Home.tsx'));
+const Dashboard = lazy(() => import('./components/Dashboard.tsx'));
+const OPDManagement = lazy(() => import('./components/OPDManagement.tsx'));
+const IPDManagement = lazy(() => import('./components/IPDManagement.tsx'));
+const Emergency = lazy(() => import('./components/Emergency.tsx'));
+const OTManagement = lazy(() => import('./components/OTManagement.tsx'));
+const DoctorPad = lazy(() => import('./components/DoctorPad.tsx'));
+const Laboratory = lazy(() => import('./components/LabAnalytics.tsx'));
+const Radiology = lazy(() => import('./components/Radiology.tsx'));
+const BedManagement = lazy(() => import('./components/BedManagement.tsx'));
+const BillingInventory = lazy(() => import('./components/BillingInventory.tsx'));
+const Reports = lazy(() => import('./components/Reports.tsx'));
+const Patients = lazy(() => import('./components/Patients.tsx'));
+const PatientPortal = lazy(() => import('./components/PatientPortal.tsx'));
+const EmergencyOverride = lazy(() => import('./components/EmergencyOverride.tsx'));
+const EMRManagement = lazy(() => import('./components/EMRManagement.tsx'));
+const PharmacyManagement = lazy(() => import('./components/PharmacyManagement.tsx'));
+const InventoryManagement = lazy(() => import('./components/InventoryManagement.tsx'));
+const InsuranceManagement = lazy(() => import('./components/InsuranceManagement.tsx'));
+const HRManagement = lazy(() => import('./components/HRManagement.tsx'));
+const QualityManagement = lazy(() => import('./components/QualityManagement.tsx'));
+const DeviceIntegrations = lazy(() => import('./components/DeviceIntegrations.tsx'));
+const GovtIntegrations = lazy(() => import('./components/GovtIntegrations.tsx'));
+
+// ─── Module loading fallback ────────────────────────────────
+const ModuleLoader: React.FC = () => (
+  <div className="flex items-center justify-center py-24">
+    <div className="flex flex-col items-center gap-4 bg-white p-6 rounded-2xl shadow-xl border border-hospital-border">
+      <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Loading Module...</p>
+    </div>
+  </div>
+);
+
 const AppContent: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewType>('HOME');
-  const [isLoading, setIsLoading] = useState(false);
   const [hasKey, setHasKey] = useState<boolean | null>(null);
   const [showOverrideModal, setShowOverrideModal] = useState(false);
   const [loginError, setLoginError] = useState('');
@@ -60,12 +73,6 @@ const AppContent: React.FC = () => {
       setActiveView(defaultView);
     }
   }, [isAuthenticated, user?.role]);
-
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 300);
-    return () => clearTimeout(timer);
-  }, [activeView]);
 
   // ─── Login handlers ────────────────────────────────────────
   const handleLogin = async (email: string, password: string, remember: boolean) => {
@@ -246,21 +253,19 @@ const AppContent: React.FC = () => {
 
         <div className={`flex-1 overflow-y-auto custom-scrollbar flex flex-col ${isHome ? '' : 'relative'}`}>
           <div className={isHome ? '' : 'p-8 pb-12 flex-1'}>
-            {isLoading && !isHome && (
-              <div className="absolute inset-0 z-50 bg-hospital-bg/50 backdrop-blur-[2px] flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4 bg-white p-6 rounded-2xl shadow-xl border border-hospital-border">
-                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                  <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Synchronizing Module...</p>
-                </div>
-              </div>
-            )}
-            {renderView()}
+            <Suspense fallback={<ModuleLoader />}>
+              {renderView()}
+            </Suspense>
           </div>
           <Footer />
         </div>
       </main>
 
-      {showOverrideModal && <EmergencyOverride onClose={() => setShowOverrideModal(false)} />}
+      {showOverrideModal && (
+        <Suspense fallback={<ModuleLoader />}>
+          <EmergencyOverride onClose={() => setShowOverrideModal(false)} />
+        </Suspense>
+      )}
     </div>
   );
 };
