@@ -1,9 +1,10 @@
 import { pool } from './db.js';
 
 async function run() {
+    let client;
     try {
         console.log('Connecting to DB...');
-        const client = await pool.connect();
+        client = await pool.connect();
         console.log('Connected to:', client.database);
 
         const res = await client.query(
@@ -24,10 +25,11 @@ async function run() {
             console.log(`- ${r.action} ${r.entity_type} ${r.created_at}`);
         });
 
-        client.release();
-
     } catch (e) {
         console.error('Error:', e);
+    } finally {
+        if (client) client.release();
+        process.exit(0);
     }
 }
 
