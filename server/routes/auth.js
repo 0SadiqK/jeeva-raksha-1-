@@ -11,7 +11,13 @@ import pool from '../db.js';
 
 const router = Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'jeevaraksha-secret-key-change-in-production';
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET must be set in production.');
+}
+const JWT_SECRET = process.env.JWT_SECRET || (() => {
+    console.warn('[AUTH] WARNING: Using default JWT_SECRET. Set JWT_SECRET env var for production.');
+    return 'jeevaraksha-dev-secret-DO-NOT-USE-IN-PROD';
+})();
 const JWT_EXPIRES = '8h';
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_DURATION_MINS = 15;

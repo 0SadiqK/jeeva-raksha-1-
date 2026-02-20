@@ -4,7 +4,12 @@
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'jeevaraksha-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || (() => {
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error('JWT_SECRET must be set in production.');
+    }
+    return 'jeevaraksha-dev-secret-DO-NOT-USE-IN-PROD';
+})();
 const VALID_ROLES = ['admin', 'doctor', 'nurse', 'pharmacist', 'lab_tech', 'receptionist', 'staff', 'patient', 'demo'];
 
 /**
