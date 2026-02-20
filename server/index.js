@@ -250,18 +250,96 @@ async function shutdown(signal) {
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
+// ─── Readiness state ────────────────────────────────────────
+let isReady = false;
+
+// Readiness probe (Railway / k8s — separate from liveness /health)
+app.get('/ready', (_req, res) => {
+    if (isReady) {
+        res.json({ status: 'ready', uptime: getUptime() });
+    } else {
+        res.status(503).json({ status: 'starting', message: 'Server is still initializing' });
+    }
+});
+
+// ─── Startup readiness sequence ─────────────────────────────
+async function startupChecks() {
+    const checks = [];
+    const env = process.env.NODE_ENV || 'development';
+
+    // 1. Environment validation
+    const hasJWT = !!process.env.JWT_SECRET;
+    const hasDB = !!process.env.DATABASE_URL || !!process.env.DB_HOST;
+    const hasRedis = !!process.env.REDIS_URL;
+
+    checks.push({ name: 'JWT_SECRET', status: hasJWT ? 'PASS' : (env === 'production' ? 'FAIL' : 'WARN'), detail: hasJWT ? 'set' : 'using dev default' });
+    checks.push({ name: 'DATABASE_URL', status: hasDB ? 'PASS' : (env === 'production' ? 'FAIL' : 'WARN'), detail: hasDB ? 'configured' : 'using localhost fallback' });
+    checks.push({ name: 'REDIS_URL', status: hasRedis ? 'PASS' : 'INFO', detail: hasRedis ? 'configured' : 'not set (in-memory cache)' });
+
+    // 2. Database connectivity
+    try {
+        const dbHealth = await healthCheck();
+        checks.push({ name: 'PostgreSQL', status: dbHealth.status === 'connected' ? 'PASS' : 'WARN', detail: dbHealth.status === 'connected' ? `connected to ${dbHealth.database}` : dbHealth.error });
+    } catch (err) {
+        checks.push({ name: 'PostgreSQL', status: 'FAIL', detail: err.message });
+    }
+
+    // 3. Redis connectivity
+    try {
+        const redisHealth = await cache.getRedisHealth();
+        checks.push({ name: 'Redis', status: redisHealth.status === 'connected' ? 'PASS' : 'INFO', detail: `${redisHealth.status} (${redisHealth.backend})` });
+    } catch {
+        checks.push({ name: 'Redis', status: 'INFO', detail: 'not configured' });
+    }
+
+    // 4. Auth schema
+    try {
+        const result = await pool.query(`
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'users'
+            AND column_name IN ('password_hash', 'login_attempts', 'locked_until', 'last_login_at')
+        `);
+        const ready = result.rows.length === 4;
+        checks.push({ name: 'Auth Schema', status: ready ? 'PASS' : 'WARN', detail: ready ? 'all columns present' : `${result.rows.length}/4 columns found` });
+    } catch (err) {
+        checks.push({ name: 'Auth Schema', status: 'WARN', detail: err.message });
+    }
+
+    return checks;
+}
+
 // ─── Start ──────────────────────────────────────────────────
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
     console.log(`\n[SERVER] ═══════════════════════════════════════════`);
-    console.log(`[SERVER] 🏥 Jeeva Raksha API v2.4 (Observable)`);
+    console.log(`[SERVER] 🏥 Jeeva Raksha API v2.5 (Deployment-Ready)`);
     console.log(`[SERVER] ───────────────────────────────────────────`);
     console.log(`[SERVER]   URL:        http://localhost:${PORT}`);
     console.log(`[SERVER]   Health:     http://localhost:${PORT}/health`);
-    console.log(`[SERVER]   API Health: http://localhost:${PORT}/api/health`);
+    console.log(`[SERVER]   Readiness:  http://localhost:${PORT}/ready`);
     console.log(`[SERVER]   Rate Limit: 100 req/15min (API), 20/15min (Auth)`);
     console.log(`[SERVER]   Pool:       max=20, timeout=5s, stmt_timeout=10s`);
-    console.log(`[SERVER]   Cache:      TTL=30-60s, auto-invalidate on mutations`);
+    console.log(`[SERVER]   Cache:      Redis → in-memory fallback, TTL=30-60s`);
     console.log(`[SERVER]   Env:        ${process.env.NODE_ENV || 'development'}`);
+    console.log(`[SERVER] ───────────────────────────────────────────`);
+
+    // Run deployment readiness checks
+    const checks = await startupChecks();
+    const icon = { PASS: '✅', WARN: '⚠️', FAIL: '❌', INFO: 'ℹ️' };
+
+    console.log(`[SERVER]   DEPLOYMENT READINESS:`);
+    for (const c of checks) {
+        console.log(`[SERVER]     ${icon[c.status] || '·'} ${c.name.padEnd(14)} ${c.detail}`);
+    }
+
+    const hasFail = checks.some(c => c.status === 'FAIL');
+    if (hasFail && process.env.NODE_ENV === 'production') {
+        console.error(`[SERVER] ❌ CRITICAL: Startup checks failed. Exiting.`);
+        process.exit(1);
+    }
+
+    isReady = true;
+    console.log(`[SERVER] ───────────────────────────────────────────`);
+    console.log(`[SERVER]   ✅ SYSTEM READY — accepting traffic`);
     console.log(`[SERVER] ═══════════════════════════════════════════\n`);
 });
 
