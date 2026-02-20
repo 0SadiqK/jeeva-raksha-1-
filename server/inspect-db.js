@@ -25,7 +25,7 @@ async function inspectTable() {
     } catch (err) {
         console.error('Error:', err.message);
     } finally {
-        await pool.end();
+        process.exit(0);
     }
 }
 
