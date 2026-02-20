@@ -1,5 +1,7 @@
-const BASE = 'http://localhost:5000/api';
+import dotenv from 'dotenv';
+dotenv.config();
 
+const BASE = process.env.API_BASE || 'http://localhost:5000/api';
 async function run() {
     console.log('1. Logging in as Admin...');
     // Using correct credentials from seed-passwords.js (line 20)

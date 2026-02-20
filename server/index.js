@@ -1,6 +1,19 @@
+// ─── Jeeva Raksha — Backend Entry ────────────────────────────
+// dotenv MUST load FIRST, before any module that reads env vars
+// ─────────────────────────────────────────────────────────────
+import dotenv from 'dotenv';
+dotenv.config();
+
+// ─── Environment validation ─────────────────────────────────
+if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL environment variable is missing. Cannot start in production without it.');
+}
+if (!process.env.DATABASE_URL && !process.env.DB_HOST) {
+    console.warn('[WARN] Neither DATABASE_URL nor DB_HOST is set. Using default localhost connection.');
+}
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -25,8 +38,6 @@ import bedsRouter from './routes/beds.js';
 import dashboardRouter from './routes/dashboard.js';
 import auditRouter from './routes/audit.js';
 
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || process.env.API_PORT || 5000;
 
@@ -34,7 +45,7 @@ const PORT = process.env.PORT || process.env.API_PORT || 5000;
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// Request logging middleware - MOVED TO TOP
+// Request logging middleware
 app.use((req, _res, next) => {
     const user = req.user?.id || 'anon';
     const demo = req.user?.isDemo ? ' [DEMO]' : '';
@@ -46,6 +57,16 @@ app.use((req, _res, next) => {
     next();
 });
 
+// ─── Root health check (Railway / load balancer) ────────────
+app.get('/health', async (_req, res) => {
+    const dbHealth = await healthCheck();
+    res.json({
+        status: dbHealth.status === 'connected' ? 'ok' : 'degraded',
+        timestamp: new Date().toISOString(),
+        database: dbHealth,
+    });
+});
+
 // Auth routes BEFORE authentication middleware (login doesn't need auth)
 app.use('/api/auth', authRouter);
 
@@ -55,12 +76,7 @@ app.use(authenticate);
 // Block mutations for demo users
 app.use(demoGuard);
 
-// ... (imports)
-
-// Request logging middleware (Removed duplicate)
-
 // ─── Routes ─────────────────────────────────────────────────
-app.use('/api/auth', authRouter); // Redundant here but safe
 app.use('/api/patients', patientsRouter);
 app.use('/api/doctors', doctorsRouter);
 app.use('/api/appointments', appointmentsRouter);
@@ -72,7 +88,7 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/audit-logs', auditRouter);
 app.use('/api', bedsRouter);
 
-// ─── Health check (enhanced) ────────────────────────────────
+// ─── Health check (enhanced, under /api) ────────────────────
 app.get('/api/health', async (_req, res) => {
     const dbHealth = await healthCheck();
 
@@ -100,7 +116,7 @@ app.get('/api/health', async (_req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        version: '2.1.0',
+        version: '2.2.0',
         database: dbHealth,
         auth_schema: {
             ready: authSchemaOk,
@@ -140,15 +156,30 @@ app.use((err, _req, res, _next) => {
     });
 });
 
+// ─── Graceful shutdown ──────────────────────────────────────
+async function shutdown(signal) {
+    console.log(`\n[${signal}] Shutting down gracefully...`);
+    try {
+        await pool.end();
+        console.log('[DB] Connection pool closed.');
+    } catch (err) {
+        console.error('[DB] Error closing pool:', err.message);
+    }
+    process.exit(0);
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
 // ─── Start ──────────────────────────────────────────────────
 const server = app.listen(PORT, () => {
-    console.log(`\n🏥 Jeeva Raksha API Server v2.1 (with Auth)`);
+    console.log(`\n🏥 Jeeva Raksha API Server v2.2 (Production-Grade)`);
     console.log(`   Running on:  http://localhost:${PORT}`);
     console.log(`   Auth:        http://localhost:${PORT}/api/auth/login`);
     console.log(`   Health:      http://localhost:${PORT}/api/health`);
+    console.log(`   Root Health: http://localhost:${PORT}/health`);
     console.log(`   Environment: ${process.env.NODE_ENV || 'development'}\n`);
 });
 
 // Keep-alive interval to prevent premature exit in certain environments
 setInterval(() => { }, 60000);
-

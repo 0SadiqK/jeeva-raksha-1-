@@ -1,17 +1,18 @@
-const BASE = 'http://localhost:5000/api';
+import dotenv from 'dotenv';
+dotenv.config();
 
-async function check() {
-    try {
-        console.log('Checking health...');
-        const res = await fetch(`${BASE}/health`);
-        if (res.ok) {
-            console.log('✅ Server is UP:', await res.json());
-        } else {
-            console.log('❌ Server returned:', res.status, await res.text());
-        }
-    } catch (e) {
-        console.error('❌ Connection failed:', e.message);
+const BASE = process.env.API_BASE || 'http://localhost:5000';
+
+async function run() {
+    const res = await fetch(`${BASE}/health`);
+
+    if (!res.ok) {
+        throw new Error(`Health check failed: ${res.status}`);
     }
+
+    const data = await res.json();
+
+    console.log('Health:', data);
 }
 
-check();
+run().catch(console.error);
