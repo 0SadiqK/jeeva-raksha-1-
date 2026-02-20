@@ -116,11 +116,13 @@ if (fs.existsSync(distPath)) {
     console.log(`Serving static files from: ${distPath}`);
     app.use(express.static(distPath));
 
-    app.get('*', (req, res, next) => {
-        if (req.path.startsWith('/api')) {
-            return next();
+    // SPA Fallback (safer implementation)
+    app.use((req, res, next) => {
+        if (req.method === 'GET' && !req.path.startsWith('/api')) {
+            res.sendFile(path.join(distPath, 'index.html'));
+        } else {
+            next();
         }
-        res.sendFile(path.join(distPath, 'index.html'));
     });
 }
 
