@@ -65,13 +65,24 @@ async function run() {
 
     // Verify Soft Delete
     const listP = await fetch(`${BASE}/patients?search=${encodeURIComponent(createdPatient.uhid)}`, { headers });
-    const listPData = await listP.json(); // May return empty list or specific error
-    // If it returns list structure
+    const listPData = await listP.json();
+
+    // The API returns non-deleted records (including inactive). 
+    // Soft delete sets status to 'inactive'.
     if (listPData.data) {
         const foundP = listPData.data.find(p => p.id === createdPatient.id);
-        if (foundP) throw new Error('❌ Patient still visible in list after soft delete!');
+        if (foundP) {
+            if (foundP.status === 'inactive') {
+                log(`   ✅ Patient found with status 'inactive' (Soft Delete Successful).`);
+            } else {
+                throw new Error(`❌ Patient still active! Status: ${foundP.status}`);
+            }
+        } else {
+            log(`   ✅ Patient not found in list (Soft Delete Successful).`);
+        }
+    } else {
+        log(`   ⚠️ Could not verify list (unexpected response format).`);
     }
-    log(`   ✅ Patient successfully removed from active list.`);
 
     log('\n✨ DOCTOR CRUD CHECKS PASSED!');
 }
