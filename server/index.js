@@ -1,4 +1,4 @@
-// ─── Jeeva Raksha — Backend Entry (Enterprise-Grade) ─────────
+// ─── Jeeva Raksha — Backend Entry (Enterprise + Observable) ──
 // dotenv MUST load FIRST, before any module that reads env vars
 // ─────────────────────────────────────────────────────────────
 import dotenv from 'dotenv';
@@ -17,12 +17,13 @@ if (!process.env.DATABASE_URL && !process.env.DB_HOST) {
 
 // ─── Global crash handlers ──────────────────────────────────
 process.on('unhandledRejection', (reason) => {
-    console.error('[Unhandled Rejection]', reason);
+    console.error('[CRASH] Unhandled Rejection:', reason);
+    if (reason instanceof Error) console.error('[CRASH] Stack:', reason.stack);
 });
 
 process.on('uncaughtException', (err) => {
-    console.error('[Uncaught Exception]', err);
-    // In production, exit after logging — PM2/Railway will restart
+    console.error('[CRASH] Uncaught Exception:', err.message);
+    console.error('[CRASH] Stack:', err.stack);
     if (process.env.NODE_ENV === 'production') {
         process.exit(1);
     }
@@ -41,7 +42,7 @@ const projectRoot = path.resolve(__dirname, '..');
 const logPath = path.resolve(projectRoot, 'debug_root.log');
 
 import { authenticate, demoGuard } from './middleware/authMiddleware.js';
-import { healthCheck, pool } from './db.js';
+import { healthCheck, pool, getPoolStats, getUptime, startedAt } from './db.js';
 
 import authRouter from './routes/auth.js';
 import patientsRouter from './routes/patients.js';
@@ -65,18 +66,18 @@ app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// ─── Rate limiting (brute-force / abuse protection) ─────────
+// ─── Rate limiting ──────────────────────────────────────────
 const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,  // 15 minutes
-    max: 100,                   // 100 requests per window per IP
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many requests. Please try again later.' },
 });
 
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,  // 15 minutes
-    max: 20,                    // 20 login attempts per window per IP
+    windowMs: 15 * 60 * 1000,
+    max: 20,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many login attempts. Please try again later.' },
@@ -84,13 +85,12 @@ const authLimiter = rateLimit({
 
 app.use('/api', apiLimiter);
 
-// Request logging middleware (non-blocking write)
+// Request logging (non-blocking)
 app.use((req, _res, next) => {
     const user = req.user?.id || 'anon';
     const demo = req.user?.isDemo ? ' [DEMO]' : '';
     const msg = `[API] ${req.method} ${req.url}  (user: ${user}${demo})`;
     console.log(msg);
-    // Non-blocking file write to prevent I/O stalls
     fs.appendFile(logPath, `[${new Date().toISOString()}] ${msg}\n`, () => { });
     next();
 });
@@ -98,18 +98,26 @@ app.use((req, _res, next) => {
 // ─── Root health check (Railway / load balancer) ────────────
 app.get('/health', async (_req, res) => {
     const dbHealth = await healthCheck();
+    const mem = process.memoryUsage();
     res.json({
         status: dbHealth.status === 'connected' ? 'ok' : 'degraded',
+        version: '2.4.0',
+        uptime: getUptime(),
         timestamp: new Date().toISOString(),
         database: dbHealth,
+        memory: {
+            rss: Math.round(mem.rss / 1024 / 1024),
+            heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
+            heapTotal: Math.round(mem.heapTotal / 1024 / 1024),
+            unit: 'MB',
+        },
     });
 });
 
-// Auth routes BEFORE authentication middleware (login doesn't need auth)
-// Apply stricter rate limit to auth routes
+// Auth routes (with stricter rate limit)
 app.use('/api/auth', authLimiter, authRouter);
 
-// Attach user info from JWT or headers on every request
+// Attach user info from JWT or headers
 app.use(authenticate);
 
 // Block mutations for demo users
@@ -130,8 +138,8 @@ app.use('/api', bedsRouter);
 // ─── Health check (enhanced, under /api) ────────────────────
 app.get('/api/health', async (_req, res) => {
     const dbHealth = await healthCheck();
+    const mem = process.memoryUsage();
 
-    // Check if auth columns exist
     let authSchemaOk = false;
     let authSchemaError = null;
     try {
@@ -154,24 +162,32 @@ app.get('/api/health', async (_req, res) => {
 
     res.json({
         status: 'ok',
+        version: '2.4.0',
+        uptime: getUptime(),
+        startedAt: startedAt.toISOString(),
         timestamp: new Date().toISOString(),
-        version: '2.3.0',
         database: dbHealth,
         auth_schema: {
             ready: authSchemaOk,
             error: authSchemaError,
             hint: authSchemaOk ? null : 'Run: psql -h localhost -U postgres -d jeeva_raksha -f server/migration_auth.sql'
         },
+        memory: {
+            rss: Math.round(mem.rss / 1024 / 1024),
+            heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
+            heapTotal: Math.round(mem.heapTotal / 1024 / 1024),
+            unit: 'MB',
+        },
+        pool: getPoolStats(),
     });
 });
 
 // ─── Serve Frontend (Production) ─────────────────────────────
 const distPath = path.resolve(projectRoot, 'dist');
 if (fs.existsSync(distPath)) {
-    console.log(`Serving static files from: ${distPath}`);
+    console.log(`[SERVER] Serving static files from: ${distPath}`);
     app.use(express.static(distPath));
 
-    // SPA Fallback (safer implementation)
     app.use((req, res, next) => {
         if (req.method === 'GET' && !req.path.startsWith('/api')) {
             res.sendFile(path.join(distPath, 'index.html'));
@@ -188,16 +204,33 @@ app.use((_req, res) => {
 
 // ─── Error handler ──────────────────────────────────────────
 app.use((err, _req, res, _next) => {
-    console.error('[API ERROR]', err);
+    console.error('[ERROR]', err.message);
+    if (err.stack) console.error('[ERROR] Stack:', err.stack.split('\n').slice(0, 5).join('\n'));
     res.status(500).json({
         error: 'Internal server error',
         message: process.env.NODE_ENV === 'production' ? 'An error occurred' : err.message,
     });
 });
 
+// ─── Memory monitoring (every 5 min) ────────────────────────
+const memMonitor = setInterval(() => {
+    const mem = process.memoryUsage();
+    const rss = Math.round(mem.rss / 1024 / 1024);
+    const heapUsed = Math.round(mem.heapUsed / 1024 / 1024);
+    const heapTotal = Math.round(mem.heapTotal / 1024 / 1024);
+    console.log(`[MONITOR] Memory: RSS=${rss}MB heap=${heapUsed}/${heapTotal}MB | Uptime: ${getUptime()}s | Pool: ${JSON.stringify(getPoolStats())}`);
+
+    if (rss > 512) {
+        console.warn(`[MONITOR] WARNING: RSS memory ${rss}MB exceeds 512MB — possible memory leak`);
+    }
+}, 5 * 60 * 1000);
+memMonitor.unref();
+
 // ─── Graceful shutdown ──────────────────────────────────────
 async function shutdown(signal) {
-    console.log(`\n[${signal}] Shutting down gracefully...`);
+    console.log(`\n[SERVER] ${signal} received — shutting down gracefully...`);
+    console.log(`[SERVER] Uptime was: ${getUptime()}s`);
+    console.log(`[SERVER] Final pool stats: ${JSON.stringify(getPoolStats())}`);
     try {
         await pool.end();
         console.log('[DB] Connection pool closed.');
@@ -212,14 +245,17 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 
 // ─── Start ──────────────────────────────────────────────────
 const server = app.listen(PORT, () => {
-    console.log(`\n🏥 Jeeva Raksha API Server v2.3 (Enterprise-Grade)`);
-    console.log(`   Running on:  http://localhost:${PORT}`);
-    console.log(`   Auth:        http://localhost:${PORT}/api/auth/login`);
-    console.log(`   Health:      http://localhost:${PORT}/api/health`);
-    console.log(`   Root Health: http://localhost:${PORT}/health`);
-    console.log(`   Rate Limit:  100 req/15min (API), 20 req/15min (Auth)`);
-    console.log(`   Environment: ${process.env.NODE_ENV || 'development'}\n`);
+    console.log(`\n[SERVER] ═══════════════════════════════════════════`);
+    console.log(`[SERVER] 🏥 Jeeva Raksha API v2.4 (Observable)`);
+    console.log(`[SERVER] ───────────────────────────────────────────`);
+    console.log(`[SERVER]   URL:        http://localhost:${PORT}`);
+    console.log(`[SERVER]   Health:     http://localhost:${PORT}/health`);
+    console.log(`[SERVER]   API Health: http://localhost:${PORT}/api/health`);
+    console.log(`[SERVER]   Rate Limit: 100 req/15min (API), 20/15min (Auth)`);
+    console.log(`[SERVER]   Pool:       max=20, timeout=5s, stmt_timeout=10s`);
+    console.log(`[SERVER]   Env:        ${process.env.NODE_ENV || 'development'}`);
+    console.log(`[SERVER] ═══════════════════════════════════════════\n`);
 });
 
-// Keep-alive interval to prevent premature exit in certain environments
+// Keep-alive
 setInterval(() => { }, 60000);
